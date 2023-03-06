@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Mukta:wght@200;300;400&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+::-webkit-scrollbar {
+  width: 10px;
+  background: #fcf5f5;
+  border-radius: 30px;
+  z-index: 100;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 30px;
+}
+::-webkit-scrollbar-thumb {
+    background: #bdbdbd;
+    border-radius: 30px;
+  }
+.remove-scrollbar{
+    -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.remove-scrollbar::-webkit-scrollbar{
+    display:none;
+}
+@media (max-width:520px){
+    ::-webkit-scrollbar{
+        width:0px
+    }
+}
+body{
+  min-height:100vh;
+  display:flex;
+}
+#root{
+  flex-grow:1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#background{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: block;
+  z-index: -50;
+  background-image: linear-gradient(92.54deg, #1865C1 9.75%, #6094D3 60.29%, #7CA0CC 84.74%, #C7D7EC 112.93%);
+}
