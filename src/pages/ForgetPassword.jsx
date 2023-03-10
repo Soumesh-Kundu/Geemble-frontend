@@ -1,14 +1,13 @@
 import Background from "../components/Background";
 import Geemble from "../assets/Geemble.png";
-import { AiFillEye } from "react-icons/ai";
-import { AiFillEyeInvisible } from "react-icons/ai";
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import Button from "../components/Button";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 
 export default function ForgetPassword() {
   const [error, setError] = useState(false);
   const [data, setData] = useState({ email: "" });
+  const navigate=useNavigate()
 
   function handleOnBlur({ target }) {
     const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -31,25 +30,27 @@ export default function ForgetPassword() {
   function handleOnSumbit(e) {
     e.preventDefault();
     //do something
+    console.log("hello")
+    navigate('/verify',{state:{email:data.email},replace:true})
   }
 
   return (
     <div>
       <div className="flex justify-center items-center h-screen w-screen z-50">
-        <main className="flex flex-col md:flex-row h-4/5 items-center gap-6 md:gap-16 w-full justify-start md:justify-center">
+        <main className="flex flex-col lg:flex-row h-4/5 items-center gap-6 lg:gap-16 w-full justify-start lg:justify-center">
           <section
             id="hero"
-            className="flex flex-col w-4/5 md:w-1/4 gap-5 justify-center items-center"
+            className="flex flex-col w-4/5 md:w-2/5 lg:w-1/3 gap-5 justify-center items-center "
           >
-            <img src={Geemble} alt="" className="w-3/4" />
+            <img src={Geemble} alt="" className="w-3/4 lg:w-3/5" />
             <h2 className="text-white text-center  whitespace-normal">
               Seems like something lost!! But wait we gotta your back
             </h2>
           </section>
-          <div className="md:w-[1px] md:h-4/5 bg-[#e4e3e3] z-50"></div>
+          <div className="md:w-[1px] lg:h-4/5 bg-[#e4e3e3] z-50"></div>
           <section
             id="login"
-            className="h-[70%] md:h-full w-10/12  md:w-1/3 bg-[#dbdbdb85] backdrop-blur-3xl rounded-xl flex flex-col justify-center p-6 md:p-8 gap-8 items-center"
+            className="h-[70%] md:h-3/6 lg:h-3/4 w-11/12 md:w-6/12 lg:w-1/3 bg-[#dbdbdb85] backdrop-blur-3xl rounded-xl flex flex-col justify-center p-6 md:p-8 gap-8 items-center"
           >
             <h2 className="text-white text-xl whitespace-normal">
               <span className="text-3xl text-[#0E5FC0]">We </span>

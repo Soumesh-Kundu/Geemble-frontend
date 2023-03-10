@@ -42,6 +42,18 @@ export  const dummyPost= [
       {
         "user": "Soumenchandra",
         "_id": "63ee663078f7770585e133a7"
+      },
+      {
+        "user": "Soumenchandra",
+        "_id": "63ee663078f7770585e133a7"
+      },
+      {
+        "user": "Soumenchandra",
+        "_id": "63ee663078f7770585e133a7"
+      },
+      {
+        "user": "Soumenchandra",
+        "_id": "63ee663078f7770585e133a7"
       }
     ],
     "comments": [

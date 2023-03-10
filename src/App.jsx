@@ -19,6 +19,7 @@ import {
   UserProfile,
   Verify,
   Feed,
+  NotFound,
 } from "./pages";
 import ConfirmationDailog from "./components/ConfirmationDailog";
 import ScrollToTop from "./components/ScrollToTop";
@@ -32,15 +33,16 @@ function App() {
           <div className="App overflow-x-hidden w-screen h-screen primary-gradient font-mukta">
             <Routes>
               <Route path="/" element={<Home />}>
-                <Route path="" element={<Feed />}/>
-                <Route path="profile/:username" element={<UserProfile />}/>
-                <Route path="profile/verify" element={<Verify />} />
+                <Route path="" element={<Feed />} />
+                <Route path="profile/:username" element={<UserProfile />} >
+                  
+                </Route>
                 <Route path="editprofile/:username" element={<EditProfile />} />
                 <Route path="search" element={<Search />} />
-                <Route path="*" element={<div>404 not found</div>} />
               </Route>
-              <Route path="*" element={<div>404 not found</div>} />
+              <Route path="*" element={<NotFound />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/verify/user" element={<Verify />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgetpassword" element={<ForgetPassword />} />
               <Route path="/verify" element={<Verify />} />

@@ -6,9 +6,6 @@ import { useAuthorAtom } from "../store/Authstore";
 import { ACTIONS as DAILOGACTONS, useDailogAtom } from "../store/DailogStore";
 import { ACTIONS as POSTACTIONS, usePostAtom } from "../store/CurrentPost";
 
-const likedstyle = "";
-const nonLikedStyle = "";
-
 export default function Post({
   _id,
   username,
@@ -40,7 +37,7 @@ export default function Post({
   }
 
   return (
-    <div className="bg-[#DDDDDD] w-full tracking-wide min-h-min p-4 rounded-3xl flex flex-col gap-3">
+    <div className="bg-[#DDDDDD] w-full tracking-wide min-h-min p-4 rounded-3xl flex flex-col gap-3 ">
       <div id="author" className="flex h-14 gap-5 relative">
         <div id="profilepicture">
           <div className="-z-10 w-10 h-10 rounded-full bg-pink-400"></div>
@@ -54,16 +51,18 @@ export default function Post({
             {date.toTimeString().slice(0, 5)}
           </div>
         </div>
-        <div
-          className="rounded-full hover:bg-slate-300 flex items-center justify-center w-10 h-10 cursor-pointer duration-300"
-          onClick={() => {
-            setOptionsOpen((prev) => !prev);
-          }}
-        >
-          <span className="material-symbols-outlined text-gray-700">
-            more_horiz
-          </span>
-        </div>
+        {user === username && (
+          <div
+            className="rounded-full hover:bg-slate-300 flex items-center justify-center w-10 h-10 cursor-pointer duration-300"
+            onClick={() => {
+              setOptionsOpen((prev) => !prev);
+            }}
+          >
+            <span className="material-symbols-outlined text-gray-700">
+              more_horiz
+            </span>
+          </div>
+        )}
         {optionsOpen && (
           <div className="px-2 py-4 bg-gray-300 rounded-xl w-24 h-20 flex flex-col justify-center absolute right-2 translate-y-[50%]">
             <div
@@ -76,7 +75,7 @@ export default function Post({
                     username,
                     caption,
                     postedImage,
-                    activeFor:'Edit'
+                    activeFor: "Edit",
                   },
                 });
                 setOptionsOpen(false);
@@ -106,13 +105,49 @@ export default function Post({
         </div>
       )}
       <div id="counts" className="flex justify-between items-center">
-        <div className="flex gap-2 items-center justify-center text-[#64748b] text-lg cursor-pointer">
+        <div
+          className="flex gap-2 items-center justify-center text-[#64748b] text-lg cursor-pointer"
+          onClick={() => {
+            setCurrentPost({
+              type: POSTACTIONS.SET_POST,
+              payload: {
+                _id,
+                time,
+                caption,
+                username,
+                postedImage,
+                likes,
+                comments,
+                activeFor: "likes",
+              },
+            });
+            setOptionsOpen(false);
+          }}
+        >
           <AiOutlineLike />
           <div className="underline lg:no-underline hover:underline">
             {likes.length}
           </div>
         </div>
-        <div className="flex gap-2 items-center text-[#64748b] text-lg cursor-pointer ">
+        <div
+          className="flex gap-2 items-center text-[#64748b] text-lg cursor-pointer "
+          onClick={() => {
+            setCurrentPost({
+              type: POSTACTIONS.SET_POST,
+              payload: {
+                _id,
+                time,
+                caption,
+                username,
+                postedImage,
+                likes,
+                comments,
+                activeFor: "Show",
+              },
+            });
+            setOptionsOpen(false);
+          }}
+        >
           <div className="underline lg:no-underline hover:underline">
             {comments.length}
           </div>
@@ -145,7 +180,7 @@ export default function Post({
                 postedImage,
                 likes,
                 comments,
-                activeFor:'Show'
+                activeFor: "Show",
               },
             });
             setOptionsOpen(false);

@@ -1,12 +1,14 @@
 import Navbar from "../components/Navbar";
+import Liked from "../components/Liked";
 import { Outlet,useLocation } from "react-router-dom";
 import { useState,useRef,useEffect } from "react";
 import {EditPost,Post} from "./";
-import { usePostAtom } from "../store/CurrentPost";
+import { usePostAtom,ACTIONS } from "../store/CurrentPost";
+
 
 export default function Home() {
   const  [isCrossed,setIsCrossed]=useState(false)
-  const [{activeFor}]=usePostAtom()
+  const [{activeFor,likes},setCurrentPost]=usePostAtom()
 
   const appRef=useRef()
   const location=useLocation()
@@ -34,6 +36,11 @@ export default function Home() {
       </main>
       {activeFor==='Edit' && <EditPost/>}
       {activeFor==='Show'&& <Post/>}
+      {activeFor==='likes'&& <Liked likes={likes} cancelFunction={()=>{
+        setCurrentPost({
+          type:ACTIONS.CLEAR
+        })
+      }}/>}
     </div>
     </>
   );

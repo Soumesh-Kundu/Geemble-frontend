@@ -22,5 +22,47 @@ export const dummyData = [
         "username": "tikusoumobbx",
         "profilePicture": "uploads/users/2023-02-16T17-42-28.133Z20200915_143800.jpg",
         "__v": 0
+    },
+    {
+        "name": "Soumesh Kundu",
+        "username": "tikusoumobbx",
+        "profilePicture": "uploads/users/2023-02-16T17-42-28.133Z20200915_143800.jpg",
+        "__v": 0
+    },
+    {
+        "name": "Soumesh Kundu",
+        "username": "tikusoumobbx",
+        "profilePicture": "uploads/users/2023-02-16T17-42-28.133Z20200915_143800.jpg",
+        "__v": 0
+    },
+    {
+        "name": "Soumesh Kundu",
+        "username": "tikusoumobbx",
+        "profilePicture": "uploads/users/2023-02-16T17-42-28.133Z20200915_143800.jpg",
+        "__v": 0
+    },
+    {
+        "name": "Soumesh Kundu",
+        "username": "tikusoumobbx",
+        "profilePicture": "uploads/users/2023-02-16T17-42-28.133Z20200915_143800.jpg",
+        "__v": 0
+    },
+    {
+        "name": "Soumesh Kundu",
+        "username": "tikusoumobbx",
+        "profilePicture": "uploads/users/2023-02-16T17-42-28.133Z20200915_143800.jpg",
+        "__v": 0
+    },
+    {
+        "name": "Soumesh Kundu",
+        "username": "tikusoumobbx",
+        "profilePicture": "uploads/users/2023-02-16T17-42-28.133Z20200915_143800.jpg",
+        "__v": 0
+    },
+    {
+        "name": "Soumesh Kundu",
+        "username": "tikusoumobbx",
+        "profilePicture": "uploads/users/2023-02-16T17-42-28.133Z20200915_143800.jpg",
+        "__v": 0
     }
 ]

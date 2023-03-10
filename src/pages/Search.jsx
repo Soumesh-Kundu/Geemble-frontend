@@ -20,9 +20,9 @@ function UserDiv({name,username,profilePicture}){
 export default function search() {
   return (
     <>
-      {window.innerWidth<1080 && <Searchbar styling="py-4 px-4 md:p-4 bg-nav-gradient sticky top-[4.8rem] md:top-[4.73rem] z-10 rounded-b-3xl -translate-y-2 md:translate-y-0"/>}
+      {window.innerWidth<1080 && <Searchbar styling="py-4 px-4 md:p-4 bg-nav-gradient sticky top-[4.8rem]  overflow-y-auto md:top-[4.73rem] z-10 rounded-b-3xl -translate-y-2 md:translate-y-0"/>}
       <section id="users" className="h-full overflow-y-auto ">
-        <Container padding="py-12 px-2 md:px-28 lg:px-36 flex flex-col items-center gap-6">
+        <Container padding="py-12 px-2 md:px-28 lg:px-36 flex flex-col items-center gap-6" height={"min-h-full"}>
             {dummyData.map((item,index)=><UserDiv key={index} {...item}/>)}
         </Container>
       </section>

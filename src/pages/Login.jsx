@@ -41,20 +41,20 @@ export default function Login() {
   return (
     <>
       <div className="flex justify-center items-center h-screen w-screen z-50 overflow-y-hidden">
-        <main className="flex flex-col md:flex-row h-4/5 items-center gap-6 md:gap-16 w-full justify-start md:justify-center">
+        <main className="flex flex-col lg:flex-row h-4/5 items-center gap-6 lg:gap-16 w-full justify-start lg:justify-center">
           <section
             id="hero"
-            className="flex flex-col w-4/5 md:w-1/4 gap-5 justify-center items-center"
+            className="flex flex-col w-4/5 md:w-2/5 lg:w-1/3 gap-2 justify-center items-center"
           >
-            <img src={Geemble} alt="" className="w-3/4" />
+            <img src={Geemble} alt="" className="w-3/4 lg:w-3/5" />
             <h2 className="text-white text-center  whitespace-normal">
               {`${WelcomeText}`}
             </h2>
           </section>
-          <div className="md:w-[1px] md:h-4/5 bg-[#e4e3e3] z-50"></div>
+          <div className="md:w-[1px]  lg:h-4/5 bg-[#e4e3e3] z-50"></div>
           <section
             id="login"
-            className="h-[70%] md:h-full w-10/12  md:w-1/3 bg-[#dbdbdb85] backdrop-blur-3xl rounded-xl grid place-items-center md:items-center px-6 py-2 md:p-8"
+            className="h-[70%] md:h-4/6 lg:h-full w-10/12 md:w-6/12 lg:w-1/3 bg-[#dbdbdb85] backdrop-blur-3xl rounded-xl grid place-items-center md:items-center px-6 py-2 md:p-8"
           >
             <form
               onSubmit={handleOnSumbit}
@@ -76,6 +76,7 @@ export default function Login() {
                   type="text"
                   id="username"
                   name="username"
+                  placeholder="e.g. Alex Marcer"
                   onBlur={handleOnBlur}
                   className={`h-10 w-full bg-[#ffffff] rounded-lg outline-none px-3 text-lg text-black ${
                     error ? "shake-danger" : ""
@@ -91,6 +92,7 @@ export default function Login() {
                   type={showPassword ? "text" : "password"}
                   name="password"
                   onBlur={handleOnBlur}
+                  placeholder="*******"
                   className={`h-10 w-full bg-[#ffffff] rounded-lg outline-none px-3 text-lg text-black ${
                     error ? "shake-danger" : ""
                   }  ${error ? "border-2  border-red-500" : ""}`}

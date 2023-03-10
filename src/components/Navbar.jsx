@@ -5,9 +5,10 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { ACTIONS, useDailogAtom } from "../store/DailogStore";
 import Searchbar from "./Searchbar";
 import Geemble from "../assets/Geemble.png";
+import { BsChevronDown } from "react-icons/bs";
 
 export default function Navbar({ isCrossed }) {
-  const [{ username }] = useAuthorAtom();
+  const [{ username, profilePicture, gender }] = useAuthorAtom();
   const [, setDailog] = useDailogAtom();
   const [DropBoxOpen, setDropBoxOpen] = useState(false);
   const navigate = useNavigate();
@@ -35,6 +36,19 @@ export default function Navbar({ isCrossed }) {
           <span
             className="material-symbols-outlined text-white text-3xl md:text-[35px] cursor-pointer"
             onPointerDown={() => {
+              if (location.pathname === `/editprofile/${username}`) {
+                setDailog({
+                  type: ACTIONS.SET_DAILOG,
+                  payload: {
+                    messege: "Discard Changes",
+                    isNotConfirmed:true,
+                    handleOnYes: () => {
+                      navigate(-1);
+                    },
+                  },
+                });
+                return 
+              }
               navigate(-1);
             }}
           >
@@ -60,16 +74,26 @@ export default function Navbar({ isCrossed }) {
           </Link>
         )}
         <div
-          className="bg-gray-200 relative  md:h-14 md:w-14 rounded-full flex justify-center items-center h-12 w-12"
+          className="bg-gray-200 relative  md:h-14 md:w-14 rounded-full flex justify-center items-center h-12 w-12 z-10 object-cover"
           onPointerDown={(e) => {
             e.preventDefault();
             setDropBoxOpen((prev) => !prev);
           }}
         >
-          P
+          <img
+            src={profilePicture}
+            alt=""
+            className="w-full h-full rounded-full object-cover -z-10"
+          />
           <div>
-            <span className="material-symbols-outlined md:h-8 md:w-8 rounded-full flex items-center justify-center absolute h-7 w-7 bg-red-300 text-zl md:text-2xl -right-1 -bottom-2 scale-75 text-black">
-              expand_{DropBoxOpen ? "less" : "more"}
+            <span
+              className={`material-symbols-outlined  rounded-full flex items-center justify-center absolute p-1.5 bg-red-300 text-sm  md:text-2xl -right-1 -bottom-2 scale-75 text-black duration-300 ${
+                DropBoxOpen ? "rotate-180" : "rotate-0"
+              }`}
+            >
+              <span className="text-base">
+                <BsChevronDown />
+              </span>
             </span>
           </div>
         </div>
@@ -99,7 +123,7 @@ export default function Navbar({ isCrossed }) {
                   messege: "Really want to leave ?",
                   isNotConfirmed: true,
                   handleOnYes: () => {
-                    navigate('/login')
+                    navigate("/login");
                     console.log("You have been logged out");
                   },
                   handleOnNo: () => {

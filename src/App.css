@@ -31,51 +31,84 @@
 .font-mukta {
   font-family: "Mukta", sans-serif;
 }
-.shake-danger{
-  animation: shake 500ms linear ;
+.shake-danger {
+  animation: shake 500ms linear;
 }
 @keyframes shake {
-  0%{
+  0% {
     transform: translateX(-2px);
   }
-  15%{
+  15% {
     transform: translateX(2px);
   }
-  30%{
+  30% {
     transform: translateX(-2px);
   }
-  45%{
+  45% {
     transform: translateX(2px);
   }
-  60%{
+  60% {
     transform: translateX(-2px);
   }
-  75%{
+  75% {
     transform: translateX(2px);
   }
-  100%{
+  100% {
     transform: translateX(0);
   }
 }
-.radio{
+.radio {
   appearance: none;
   position: relative;
-  width:100%;
-  height:100%;
+  width: 100%;
+  height: 100%;
 }
-.radio::before{
-  content:"";
+.radio::before {
+  content: "";
   position: absolute;
-  right:0;
-  top:12px;
-  width:1rem;
+  right: 0;
+  top: 12px;
+  width: 1rem;
   height: 1rem;
   border-radius: 50%;
   background: #ffffff;
   box-sizing: border-box;
-  transition: border 300ms cubic-bezier(0.64,0.53,0.59,1.62);
+  transition: border 300ms cubic-bezier(0.64, 0.53, 0.59, 1.62);
 }
-.radio:checked::before{
-  border:  5px solid rgb(16, 79, 252);
+.radio:checked::before {
+  border: 5px solid rgb(16, 79, 252);
+}
+.no-apperence {
+  -webkit-appearance: none;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.float {
+  animation: float 6s infinite;
+}
+.float {
+  animation-delay: calc(800ms * var(--delay));
+}
 
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-35%);
+    /* transform-origin: 0 -30%; */
+  }
+  100% {
+    transform: translateY(0%);
+    /* transform-origin: 0 -30%; */
+  }
+}
+@media (min-width>768) {
+  .blend:hover {
+    background-color: #fff;
+    color: #5e8dc7;
+  }
 }

@@ -9,13 +9,13 @@ import { usePostAtom,ACTIONS } from "../store/CurrentPost";
 import CreatePost from "./CreatePost";
 
 export default function UserProfile() {
-  const [{ username: user, name }] = useAuthorAtom();
+  const [{ username: user, name,profilePicture }] = useAuthorAtom();
   const [{activeFor},setCurrentPost]=usePostAtom()
   const { username } = useParams();
   const navigate = useNavigate();
   const [isCrossed, setIsCrossed] = useState(false);
   const changeProfilePosition = () => {
-    if (document.querySelector(".App").scrollTop <= 100) {
+    if (document.querySelector(".App").scrollTop >= 80) {
       setIsCrossed(true);
     } else {
       setIsCrossed(false);
@@ -23,6 +23,7 @@ export default function UserProfile() {
   };
   useEffect(() => {
     window.addEventListener("scroll", changeProfilePosition, true);
+    console.log(isCrossed)
     return () => {
       window.removeEventListener("scroll", changeProfilePosition);
     };
@@ -43,7 +44,7 @@ export default function UserProfile() {
         >
           <section
             className={`md:sticky -top-14 flex flex-col items-center duration-[400ms] justify-start -translate-y-[20%] ${
-              isCrossed ? "md:-translate-y-[20%]" : "md:-translate-y-0"
+              isCrossed ? "md:-translate-y-0" : "md:-translate-y-[25%]"
             }`}
             id="authorData"
           >
@@ -51,13 +52,15 @@ export default function UserProfile() {
               className="h-48 w-48 bg-[rgba(255,255,255,0.1)] mb-4 mx-7 rounded-full flex items-center justify-center backdrop-blur-[34.5px]"
               id="profilePic"
             >
-              <div className="h-[10.5rem] w-[10.5rem] bg-purple-500 rounded-full "></div>
+              <div className="h-[10.5rem] w-[10.5rem] rounded-full object-cover">
+                <img src={profilePicture} alt="" className="w-full  rounded-full" />
+              </div>
             </div>
             <div
               className=" text-3xl mb-4 text-[#0E5FC0] font-semibold"
               id="username "
             >
-              @{user}
+              @{username}
             </div>
             <div id="name" className="text-xl text-slate-500 mb-4">
               {name}

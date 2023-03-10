@@ -17,7 +17,6 @@ export default function Feed() {
           ))}
         </div>
       </Container>
-      <Outlet/>
     </div>
   );
 }
