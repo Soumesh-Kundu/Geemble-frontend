@@ -3,17 +3,15 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useLocation,
 } from "react-router-dom";
+import { login, register } from "./api/auth";
 import { useDailogAtom } from "./store/DailogStore";
 import {
-  CreatePost,
   EditProfile,
   ForgetPassword,
   Home,
   Login,
   NewPassword,
-  Post,
   Register,
   Search,
   UserProfile,
@@ -23,6 +21,10 @@ import {
 } from "./pages";
 import ConfirmationDailog from "./components/ConfirmationDailog";
 import ScrollToTop from "./components/ScrollToTop";
+login({
+  username:"soumeshkundu",
+  password:"SoumeshKundu26"
+})
 function App() {
   const [{ isNotConfirmed }] = useDailogAtom();
 
