@@ -112,3 +112,7 @@ input::-webkit-inner-spin-button {
     color: #5e8dc7;
   }
 }
+.var-width{
+  width:calc(100% - 1rem);
+
+}

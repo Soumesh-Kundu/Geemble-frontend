@@ -4,7 +4,6 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import { login, register } from "./api/auth";
 import { useDailogAtom } from "./store/DailogStore";
 import {
   EditProfile,
@@ -21,13 +20,21 @@ import {
 } from "./pages";
 import ConfirmationDailog from "./components/ConfirmationDailog";
 import ScrollToTop from "./components/ScrollToTop";
-login({
-  username:"soumeshkundu",
-  password:"SoumeshKundu26"
-})
+import Alert from "./components/Alert";
+import { useEffect } from "react";
+import { useAlertAtom,ACTIONS } from "./store/AlertStore";
 function App() {
   const [{ isNotConfirmed }] = useDailogAtom();
-
+  const [,setAlert]=useAlertAtom()
+  useEffect(()=>{
+    setAlert({
+      type:ACTIONS.SET_ALERT,
+      payload:{
+        messege:"hello world",
+        alertType:"warning"
+      }
+    })
+  },[])
   return (
     <div id="supreme">
       <Router>
@@ -54,6 +61,7 @@ function App() {
         </ScrollToTop>
       </Router>
       {isNotConfirmed && <ConfirmationDailog />}
+      <Alert/>
     </div>
   );
 }
