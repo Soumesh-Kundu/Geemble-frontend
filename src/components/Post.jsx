@@ -1,25 +1,129 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaRegComment } from "react-icons/fa";
 import { AiOutlineLike, AiFillLike } from "react-icons/ai";
 import { useAuthorAtom } from "../store/Authstore";
 import { ACTIONS as DAILOGACTONS, useDailogAtom } from "../store/DailogStore";
 import { ACTIONS as POSTACTIONS, usePostAtom } from "../store/CurrentPost";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Delete, liked } from "../api/post";
+import { cloneDeep } from "lodash";
+import { useAlertAtom, ACTIONS as ALERT_ACTIONS } from "../store/AlertStore";
 
 export default function Post({
   _id,
   username,
-  time,
+  Date: time,
+  profilePicture:userDp,
   caption,
   postedImage,
   likes,
   comments,
 }) {
-  const [{ username: user }] = useAuthorAtom();
+  const [{ username: user, profilePicture }] = useAuthorAtom();
   const [, setDailog] = useDailogAtom();
+  const navigator=useNavigate()
   const [, setCurrentPost] = usePostAtom();
+  const [, setAlert] = useAlertAtom();
   const [optionsOpen, setOptionsOpen] = useState(false);
-  const navigate = useNavigate();
+  const [hasLiked, setLiked] = useState(
+    likes.map((data) => data.user).includes(user)
+  );
+  const queryClient = useQueryClient();
+  const { mutate: likeMutate } = useMutation({
+    mutationFn: () =>
+      liked(_id, {
+        username: user,
+        profilePicture,
+      }),
+
+    onMutate: async () => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
+
+      // Snapshot the previous value
+      const previousValue = queryClient.getQueryData(["posts"]);
+      const allpages = cloneDeep(previousValue);
+      const allposts = previousValue.pages.flatMap((item) => item.posts);
+
+      // Optimistically update to the new value
+
+      const currentPostIndexAll = allposts.findIndex(
+        (data) => data._id === _id
+      );
+
+      const pageIndex = Math.floor(currentPostIndexAll / 5);
+      const currentPostIndex = allpages.pages[pageIndex].posts.findIndex(
+        (item) => item._id === _id
+      );
+
+      let newData = allpages.pages[pageIndex].posts[currentPostIndex];
+      if (
+        allposts[currentPostIndexAll].likes.find((data) => data.user === user)
+      ) {
+        newData.likes = newData.likes.filter((item) => item.user !== user);
+      } else {
+        newData.likes.push({
+          _id: Math.floor(0 + Math.random() * 10000),
+          user: user,
+          profilePicture,
+        });
+      }
+
+      queryClient.setQueryData(["posts"], (old) => allpages);
+
+      // Return a context object with the snapshotted value
+      return { previousValue };
+    },
+    onError: (err, newTodo, context) => {
+      queryClient.setQueryData(["posts"], context.previousValue);
+    },
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+
+  const { mutate: deleteMutate } = useMutation({
+    mutationFn: () => Delete(_id),
+    onError({ response }) {
+      if (response === undefined) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (response.status === 401) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Post can't be deleted",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (response.status === 500) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+
   const date = new Date(time);
   function handleOnClick() {
     setDailog({
@@ -28,7 +132,7 @@ export default function Post({
         messege: "Are you sure ?",
         isNotConfirmed: true,
         handleOnYes: () => {
-          console.log("post deleted");
+          deleteMutate();
         },
         handleOnNo: () => {},
       },
@@ -36,14 +140,28 @@ export default function Post({
     setOptionsOpen(false);
   }
 
+  useEffect(() => {
+    if (likes.map((data) => data.user).includes(user)) {
+      setLiked(true);
+    } else {
+      setLiked(false);
+    }
+  }, [likes]);
+
   return (
     <div className="bg-[#DDDDDD] w-full tracking-wide min-h-min p-4 rounded-3xl flex flex-col gap-3 ">
       <div id="author" className="flex h-14 gap-5 relative">
         <div id="profilepicture">
-          <div className="-z-10 w-10 h-10 rounded-full bg-pink-400"></div>
+          <div className="-z-10 w-10 h-10 rounded-full overflow-hidden">
+            <img
+              src={`${import.meta.env.VITE_BASE_URL}/api/${userDp}`}
+              alt="profilePicture"
+              className="w-full rounded-full overflow-hidden"
+            />
+          </div>
         </div>
         <div className="flex-grow font-semibold">
-          <div id="username" className="text-[#0E5FC0] text-md">
+          <div id="username" className="text-[#0E5FC0] text-md cursor-pointer" onClick={()=>navigator(`/profile/${username}`)}>
             @{username}
           </div>
           <div id="Date" className="text-slate-500 text-sm">
@@ -74,6 +192,7 @@ export default function Post({
                     _id,
                     username,
                     caption,
+                    profilePicture:userDp,
                     postedImage,
                     activeFor: "Edit",
                   },
@@ -98,7 +217,7 @@ export default function Post({
       {postedImage && (
         <div className=" object-cover max-h-[60%] flex justify-center">
           <img
-            src={`http://192.168.0.103:5500/api/${postedImage}`}
+            src={`${import.meta.env.VITE_BASE_URL}/api/${postedImage}`}
             className="rounded-xl max-h-[60]"
             alt=""
           />
@@ -116,6 +235,7 @@ export default function Post({
                 caption,
                 username,
                 postedImage,
+                profilePicture:userDp,
                 likes,
                 comments,
                 activeFor: "likes",
@@ -139,6 +259,7 @@ export default function Post({
                 time,
                 caption,
                 username,
+                profilePicture:userDp,
                 postedImage,
                 likes,
                 comments,
@@ -157,14 +278,12 @@ export default function Post({
       <div className="flex gap-3 ">
         <button
           type="button"
-          className="flex justify-center items-center text-2xl h-10 w-24  bg-[#fcfcfc] rounded-3xl text-[#4783cc]"
-          onClick={() => {}}
+          className="flex justify-center items-center text-2xl h-10 w-24 bg-[#fcfcfc] rounded-3xl text-[#4783cc]"
+          onClick={() => {
+            likeMutate();
+          }}
         >
-          {likes.length && likes.find((data) => data.user === user) ? (
-            <AiFillLike />
-          ) : (
-            <AiOutlineLike />
-          )}
+          {hasLiked ? <AiFillLike /> : <AiOutlineLike />}
         </button>
         <button
           type="button"
@@ -177,6 +296,7 @@ export default function Post({
                 time,
                 caption,
                 username,
+                profilePicture:userDp,
                 postedImage,
                 likes,
                 comments,

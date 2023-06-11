@@ -1,9 +1,5 @@
 import "./App.css";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useDailogAtom } from "./store/DailogStore";
 import {
   EditProfile,
@@ -22,30 +18,31 @@ import ConfirmationDailog from "./components/ConfirmationDailog";
 import ScrollToTop from "./components/ScrollToTop";
 import Alert from "./components/Alert";
 import { useEffect } from "react";
-import { useAlertAtom,ACTIONS } from "./store/AlertStore";
+import { useAlertAtom, ACTIONS } from "./store/AlertStore";
 function App() {
   const [{ isNotConfirmed }] = useDailogAtom();
-  const [,setAlert]=useAlertAtom()
-  useEffect(()=>{
+  const [, setAlert] = useAlertAtom();
+  useEffect(() => {
     setAlert({
-      type:ACTIONS.SET_ALERT,
-      payload:{
-        messege:"hello world",
-        alertType:"warning"
-      }
-    })
-  },[])
+      type: ACTIONS.SET_ALERT,
+      payload: {
+        messege: "hello world",
+        alertType: "success",
+      },
+    });
+  }, []);
   return (
-    <div id="supreme">
+    <div  >
       <Router>
         <ScrollToTop>
-          <div className="App overflow-x-hidden w-screen h-screen primary-gradient font-mukta">
+          <div className="App overflow-x-hidden w-screen h-screen primary-gradient font-mukta" id='scrollableDiv' >
             <Routes>
               <Route path="/" element={<Home />}>
-                <Route path="" element={<Feed />} />
-                <Route path="profile/:username" element={<UserProfile />} >
-                  
-                </Route>
+                <Route index element={<Feed />} />
+                <Route
+                  path="profile/:username"
+                  element={<UserProfile />}
+                ></Route>
                 <Route path="editprofile/:username" element={<EditProfile />} />
                 <Route path="search" element={<Search />} />
               </Route>
@@ -61,7 +58,7 @@ function App() {
         </ScrollToTop>
       </Router>
       {isNotConfirmed && <ConfirmationDailog />}
-      <Alert/>
+      <Alert />
     </div>
   );
 }

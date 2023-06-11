@@ -2,7 +2,7 @@ export  const dummyPost= [
   {
     "_id": "63f330335bb69c70981f4b07",
     "user": "63ee66f9e7373bf514c912d6",
-    "username": "tikusoumobbx",
+    "username": "soumeshkundu",
     "caption": "see you soon",
     "postedImage": "uploads/posts/2023-02-20T08-32-51.833Zsosti 1.jpeg",
     "time": "2023-02-20T08:32:51.885Z",
@@ -13,7 +13,7 @@ export  const dummyPost= [
   {
     "_id": "63f32ffc5bb69c70981f4b04",
     "user": "63ee66f9e7373bf514c912d6",
-    "username": "tikusoumobbx",
+    "username": "soumeshkundu",
     "caption": "see ya friends",
     "postedImage": "uploads/posts/2023-02-20T08-31-56.740ZIMG_20200610_003416.jpg",
     "time": "2023-02-20T08:31:56.807Z",
@@ -24,7 +24,7 @@ export  const dummyPost= [
   {
     "_id": "63f32fcc5bb69c70981f4b01",
     "user": "63ee66f9e7373bf514c912d6",
-    "username": "tikusoumobbx",
+    "username": "soumeshkundu",
     "caption": "see ya friends",
     "postedImage": "uploads/posts/2023-02-20T08-31-08.510Zpexels-pixabay-33688.jpg",
     "time": "2023-02-20T08:31:08.687Z",

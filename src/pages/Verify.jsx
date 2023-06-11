@@ -3,17 +3,85 @@ import { useLocation,useNavigate } from "react-router-dom";
 import Geemble from "../assets/Geemble.png";
 import { useState, useRef, useEffect } from "react";
 import Button from "../components/Button";
+import { resend as resendAuth,verify as verifyAuth } from "../api/auth";
+import { resend as resendUser,verify as verifyUser } from "../api/user";
+import {useMutation} from '@tanstack/react-query'
+import Loader from "../components/Loader";
+import { useAlertAtom,ACTIONS } from "../store/AlertStore";
+
+const resendMap=new Map([
+  ['/verify/user',resendUser],
+  ['/verify',resendAuth]
+])
+const verifyMap=new Map([
+  ['/verify/user',verifyUser],
+  ['/verify',verifyAuth]
+])
 
 let currentIndex=0
+
 export default function Verify() {
-  const { state } = useLocation();
+  const { pathname,state } = useLocation();
   const navigate=useNavigate()
-  const { email } = state;
+  const {redirect, email } = state ?? {};
+  const [,setAlert]=useAlertAtom()
+  // console.log(verifyMap.get(pathname))
   const inputRef=useRef()
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [activeIndex,setActiveIndex]=useState()
   const [countDown, setCountDown] = useState(60)
-
+  const {isLoading,mutate}=useMutation({
+    mutationFn:verifyMap.get(pathname),
+    onError:({response})=>{
+      if (response === undefined) {
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if(response.status===408){
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "OTP has expired",
+            alertType: "error",
+          },
+        })
+      }
+      if(response.status===400 || response.status===401){
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "OTP is Invalid",
+            alertType: "error",
+          },
+        })
+      }
+      if (response.status === 500) {
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess:(data)=>{
+      if(data.status===200){
+        sessionStorage.removeItem('sessionToken')
+        if(pathname==='/verify'){
+          localStorage.setItem('authToken',data.data.authToken)
+        }
+        navigate(redirect,{replace:true})
+      }
+    }
+  })
 
   function handleOnChange({target}) {
     const value=target.value.slice(target.value.length-1)
@@ -29,7 +97,9 @@ export default function Verify() {
     currentIndex=index
     if(key==='Backspace') setActiveIndex(index-1)
   }
-
+  async function handleResend(){
+    await resendMap.get(pathname)()
+  }
   useEffect(()=>{
     const time = setInterval(() => {
         setCountDown((prev=>
@@ -47,8 +117,9 @@ export default function Verify() {
   
   function handleOnSubmit(e) {
     e.preventDefault()
-    console.log(otp.join(""))
-    navigate('/newpassword',{replace:true})
+    mutate({
+      token:otp.join("")
+    })
   }
   return (
     <section className="w-full h-full">
@@ -70,7 +141,7 @@ export default function Verify() {
           <h2 className="text-lg text-white">
             An One Time password has been sent to{" "}
             <span className="text-xl text-[#0E5FC0]">
-              {email ? email : "abc@gmail.com"}
+              {email!==undefined ? email : "abc@gmail.com"}
             </span>, 
           please kindly check your email
           </h2>
@@ -92,8 +163,8 @@ export default function Verify() {
                 />
               ))}
             </label>
-            <span className="text-[#0e5fc0]">OTP will be valid for {countDown}s </span>
-            <Button type="submit">Send</Button>
+            {countDown>=1?<span className="text-[#0e5fc0] text-lg">Resend Code in {countDown}s </span>:<button type='button' onClick={handleResend} className="ml-2 text-[#0e5fc0] font-semibold text-lg">RESEND CODE</button>}
+            <Button type="submit" condition={isLoading}>{isLoading?<Loader/>:'Send'}</Button>
           </form>
         </section>
       </div>

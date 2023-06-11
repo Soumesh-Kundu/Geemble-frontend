@@ -116,3 +116,19 @@ input::-webkit-inner-spin-button {
   width:calc(100% - 1rem);
 
 }
+.ball{
+  animation:bounce 1s infinite;
+  animation-delay: calc(var(--delay)*100ms);
+}
+
+@keyframes bounce{
+  0%{
+    transform: translateY(0px);
+  }
+  50%{
+    transform: translateY(-8px);
+  }
+  100%{
+    transform: translateY(0px);
+  }
+}

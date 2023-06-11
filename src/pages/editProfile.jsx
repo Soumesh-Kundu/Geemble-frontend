@@ -1,4 +1,4 @@
-import { useState, useRef,useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { Container } from "../layouts";
@@ -12,11 +12,51 @@ import { RxCross1 } from "react-icons/rx";
 import { AiFillEye } from "react-icons/ai";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import NotFound from "./NotFound";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { newpassword, updateUser } from "../api/user";
+import { ACTIONS as ALERT_ACTIONS, useAlertAtom } from "../store/AlertStore";
+import { login } from "../api/auth";
+import Loader from "../components/Loader";
+import { changeDP } from "../api/user";
 
 function ChangeProfilePic({ handleCancel }) {
   const [_, setDailog] = useDailogAtom();
   const [profilePic, setProfilePic] = useState("");
+  const [,setAlert]=useAlertAtom()
   const fileRef = useRef();
+  const queryClient=useQueryClient()
+  const {isLoading,mutate}=useMutation({
+    mutationFn:changeDP,
+    onError(error){
+      if (error.response === undefined) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (error.response.status === 500) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess(res){
+      if(res.status===200 && res.data.success){
+        queryClient.invalidateQueries({ queryKey: ["users/admin"] });
+        handleCancel(false)
+      }
+    }
+  })
+
   function handleFileChange(e) {
     if (e.target.files.length === 0) {
       return;
@@ -24,6 +64,15 @@ function ChangeProfilePic({ handleCancel }) {
 
     const imageURL = URL.createObjectURL(e.target.files[0]);
     setProfilePic(imageURL);
+  }
+  function handleOnClick(){
+    const file=fileRef.current.files
+    const formData=new FormData()
+    console.log(file)
+    formData.append('uploadImage',file[0])
+    // formData.append('username',"abc")
+    console.log(formData)
+    mutate(formData)
   }
   return (
     <>
@@ -46,9 +95,9 @@ function ChangeProfilePic({ handleCancel }) {
                     },
                   },
                 });
-                return 
+                return;
               }
-              handleCancel(false)
+              handleCancel(false);
             }}
             className="absolute top-4 right-4 text-lg rounded-full bg-slate-300 lg:bg-transparent hover:bg-slate-300 h-8 w-8 grid place-items-center"
           >
@@ -96,8 +145,10 @@ function ChangeProfilePic({ handleCancel }) {
           <button
             type="submit"
             className="w-full bg-[#0E5FC0] text-white p-2 rounded-lg"
+            onClick={handleOnClick}
+            disabled={isLoading}
           >
-            Save
+            {isLoading?<Loader/>:"Save"}
           </button>
         </div>
       </section>
@@ -105,18 +156,67 @@ function ChangeProfilePic({ handleCancel }) {
   );
 }
 
-function NewPassword({ passwords, setPasswords }) {
+function NewPassword({ passwords, setPasswords,setPasswordChange }) {
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(false);
-  const [empty, setEmpty] = useState(false);
+  const [,setAlert]=useAlertAtom()
+  const [error, setError] = useState({
+    message:"asdfs",
+    has:false
+  });
+
+  const {isLoading,mutate}=useMutation({
+    mutationFn:newpassword,
+    onError(error){
+      if (error.response === undefined) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (error.response.status === 500) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess(res){
+      if (res.status === 200 && res.data.success) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Password Changed!",
+            alertType: "success",
+          },
+        });
+        setPasswordChange(false)
+      }
+    },
+  })
+
   function handleOnBlur() {
+    if (passwords.password.length<5) {
+      setError((prev)=>({...prev,has:false}));
+      setTimeout(() => {
+        setError((prev)=>({...prev,message:"Password can't be less then 5 characters",has:true}));
+      }, 100);
+      return
+    }
     if (
       passwords.cPassword.length &&
       passwords.cPassword !== passwords.password
     ) {
-      setError(false);
+      setError((prev)=>({...prev,has:false}));
       setTimeout(() => {
-        setError(true);
+        setError((prev)=>({...prev,message:"Password Should be matched",has:true}));
       }, 100);
       return;
     }
@@ -124,12 +224,21 @@ function NewPassword({ passwords, setPasswords }) {
   }
   function handleOnClick() {
     if (error) {
-      return;
+      setError((prev)=>({...prev,has:false}));
+      setTimeout(() => {
+        setError((prev)=>({...prev,has:true}));
+      }, 100);
+      return 
     }
-    if (!passwords.cPassword.length || !passwords.password.length) {
-      setEmpty(true);
+    if(!passwords.password.length || !passwords.cPassword.length){
+      console.log("hello")
+      setError((prev)=>({...prev,has:false}));
+      setTimeout(() => {
+        setError((prev)=>({...prev,message:"All fields needs to be filled",has:true}));
+      }, 100);
+      return 
     }
-    console.log(passwords);
+    mutate({newpassword:passwords.password})
   }
   return (
     <>
@@ -143,12 +252,12 @@ function NewPassword({ passwords, setPasswords }) {
           name="password"
           type={showPassword ? "text" : "password"}
           value={passwords.password}
+          onBlur={handleOnBlur}
           className={`bg-[#e7e7e7] outline-none h-8 p-4  rounded-lg text-black text-base ${
-            error || empty ? "shake-danger border-2 border-red-500" : ""
+            error.has ? "shake-danger border-2 border-red-500" : ""
           }`}
           onChange={(e) => {
-            setEmpty(false);
-            setError(false);
+            setError({message:"",has:false});
             setPasswords(e);
           }}
         />
@@ -173,35 +282,32 @@ function NewPassword({ passwords, setPasswords }) {
           name="cPassword"
           value={passwords.cPassword}
           className={`bg-[#e7e7e7] outline-none h-8 p-4  rounded-lg text-black text-base ${
-            error || empty ? "shake-danger border-2 border-red-500" : ""
+            error.has ? "shake-danger border-2 border-red-500" : ""
           }`}
           onBlur={handleOnBlur}
           onChange={(e) => {
-            setEmpty(false);
             setPasswords(e);
           }}
         />
         <button
           type="button"
-          className="absolute bottom-[40%] translate-y-[10%] right-3"
+          className="absolute bottom-2 translate-y-[0%] right-3"
           onClick={() => {
             setShowPassword((prev) => !prev);
           }}
         >
           {showPassword ? <AiFillEye /> : <AiFillEyeInvisible />}
         </button>
+      </label>
         <span
           className={`text-red-500 text-base ${
-            error || empty ? "visible" : "invisible"
+            error.has ? "visible" : "invisible"
           }`}
         >
-          {empty
-            ? "All fields needs to be filled"
-            : "Password should be matched"}
+          {error.message}
         </span>
-      </label>
-      <Button type="button" onClick={handleOnClick}>
-        Change
+      <Button type="button" condition={isLoading} onClick={handleOnClick}>
+        {isLoading?<Loader/>:"Change"}
       </Button>
     </>
   );
@@ -209,12 +315,64 @@ function NewPassword({ passwords, setPasswords }) {
 
 function Verify({ password, setPassword, verifed, setVerifed }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [,setAlert]=useAlertAtom()
+  const [{username}]=useAuthorAtom()
+  const {isLoading,mutate}=useMutation({
+    mutationFn:login,
+    onError(error){
+      if (error.response === undefined) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (error.response.status === 400) {
+       setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Password invalid",
+            alertType: "error",
+          },
+        });
+        return
+      }
+      if (error.response.status === 500) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess(res){
+      if (res.status === 200 && res.data.success) {
+        setVerifed(true)
+        if (!verifed) {
+          let target = { name: "password", value: "" };
+          setPassword({ target });
+        }
+      }
+    },
+  })
   function handleOnClick() {
-    if (!verifed) {
-      let target = { name: "password", value: "" };
-      setPassword({ target });
-      setVerifed(true);
+    if(!password.password.length){
+      setAlert({
+        type: ALERT_ACTIONS.SET_ALERT,
+        payload: {
+          messege: "Password is empty",
+          alertType: "error",
+        },
+      });
+      return 
     }
+    mutate({username,password:password.password})
   }
   return (
     <>
@@ -225,7 +383,7 @@ function Verify({ password, setPassword, verifed, setVerifed }) {
         Enter Your Password
         <input
           id="pass"
-          type={showPassword ? "text" : "password"}
+          type={showPassword? "text" : "password"}
           name="password"
           value={password.password}
           placeholder="⁎⁎⁎⁎⁎⁎⁎⁎⁎"
@@ -242,8 +400,8 @@ function Verify({ password, setPassword, verifed, setVerifed }) {
           {showPassword ? <AiFillEye /> : <AiFillEyeInvisible />}
         </button>
       </label>
-      <Button type="Button" onClick={handleOnClick}>
-        Verfiy
+      <Button type="Button" condition={isLoading} onClick={handleOnClick}>
+        {isLoading?<Loader/>:"Verfiy"}
       </Button>
     </>
   );
@@ -293,7 +451,7 @@ function Password({ onCancel }) {
             setPassword={handleChange}
           />
         ) : (
-          <NewPassword passwords={passwords} setPasswords={handleChange} />
+          <NewPassword passwords={passwords} setPasswords={handleChange} setPasswordChange={onCancel} />
         )}
       </form>
     </section>
@@ -306,12 +464,13 @@ const nameRegex = {
   wholeName: /^[A-Z][a-z]+\s[A-Za-z]+\s?$/,
 };
 
-function Input({ name, value, onChange }) {
+function Input({ name, value, onChange, setOpen }) {
   const [editOn, setEditOn] = useState(false);
   const [error, setError] = useState({ error: "", has: false });
   const [empty, setEmpty] = useState(false);
 
   function handleOnBlur({ target }) {
+
     if (target.name !== "bio") {
       target.value.length < 5 ? setEmpty(true) : setEmpty(false);
     }
@@ -377,9 +536,14 @@ function Input({ name, value, onChange }) {
         <button
           className="absolute right-3 bottom-1"
           onClick={() => {
-            if (name === "bio") return setEditOn((prev) => !prev);
+            if (name === "bio") {
+              setEditOn((prev) => !prev);
+              setOpen(prev=>({...prev,[name]:false}))
+              return 
+            }
             if (!empty && !error.has) {
               setEditOn((prev) => !prev);
+              setOpen(prev=>({...prev,[name]:false}))
             }
           }}
         >
@@ -406,25 +570,102 @@ function Input({ name, value, onChange }) {
 }
 
 export default function EditProfile() {
-  const [{ username:user, name, email, bio,profilePicture }] = useAuthorAtom();
-  const {username}=useParams()
+  const [{ username: user, name, email, bio, profilePicture }] =
+    useAuthorAtom();
+  const { username } = useParams();
+  const [, setAlert] = useAlertAtom();
   const [displayPicChange, setDisplayPicChange] = useState(false);
   const [_, setDailog] = useDailogAtom();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [isOpen, setOpen] = useState({
+    username: false,
+    name: false,
+    bio: false,
+  });
   const [data, setData] = useState({
     name,
     bio,
     username,
   });
   const [passwordChange, setPasswordChange] = useState(false);
+  console.log()
+  const { isLoading, mutate } = useMutation({
+    mutationFn: updateUser,
+    onError: ({ response }) => {
+      if (response === undefined) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (response.status === 403) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "username is already taken",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (response.status === 500) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess: ({ data:res, status }) => {
+      if (res.success && status === 200) {
+        queryClient.invalidateQueries({ queryKey: ["users/admin"] });
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Profile Updated!",
+            alertType: "success",
+          },
+        });
+        navigate(`/profile/${data.username}`,{replace:true})
+      }
+    },
+  });
 
   function handleChange({ target }) {
+    setOpen((prev) => ({ ...prev, [target.name]: true }));
+    console.log()
     setData((prev) => ({ ...prev, [target.name]: target.value }));
   }
-  if(user!==username){
-    return <NotFound/>
+  if (user !== username) {
+    return <NotFound />;
   }
-  
+
+  function handleOnClick() {
+    if(isOpen.name || isOpen.username || isOpen.bio ){
+      setAlert({
+        type: ALERT_ACTIONS.SET_ALERT,
+        payload: {
+          messege: "One of the edit field is still open",
+          alertType: "error",
+        },
+      });
+      return
+    }
+    // console.log(data)
+    mutate({
+      name:name===data.name?undefined:data.name,
+      username:username===data.username?undefined:data.username,
+      bio:bio===data.bio?undefined:data.bio
+    });
+  }
   return (
     <>
       <Container
@@ -432,16 +673,20 @@ export default function EditProfile() {
         height="h-auto md:h-4/5"
       >
         <section
-          className="flex flex-col lg:flex-row items-center  duration-[400ms] justify-start p-5 gap-10 md:gap-16 h-full relative -top-28 lg:top-0 md:px-28 md:py-5 w-full flex-grow md:h-4/5"
+          className="flex flex-col lg:flex-row items-center  duration-[400ms] justify-start p-5 gap-10 md:gap-10 h-full relative -top-28 lg:top-0 md:px-24 md:py-5 w-full flex-grow md:h-4/5"
           id="authorData"
         >
-          <div className="lg:-translate-y-[20vh] flex flex-col items-center">
+          <div className="lg:-translate-y-[20vh] flex flex-col items-center flex-grow">
             <div
               className="h-48 w-48 bg-[hsla(0,0%,100%,0)] mb-4 mx-7 rounded-full flex items-center justify-center backdrop-blur-[34.5px] relative "
               id="profilePic"
             >
-              <div className="h-[10.5rem] w-[10.5rem]  rounded-full ">
-              <img src={profilePicture} alt="" className="w-full  rounded-full" />
+              <div className="h-[10.5rem] w-[10.5rem] overflow-hidden rounded-full">
+                <img
+                  src={`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
+                  alt=""
+                  className=" w-full   rounded-full object-left-bottom"
+                />
               </div>
               <div className="absolute h-12 w-12 bg-[#A7A4A4] right-2 bottom-2 rounded-full grid place-items-center cursor-pointer">
                 <button
@@ -463,25 +708,36 @@ export default function EditProfile() {
             </div>
             <span className="flex items-center gap-1 text-gray-500">
               <HiOutlineMail />
-              Email: {email}
+              <span>Email:</span> {email}
             </span>
           </div>
-          <div className="flex flex-col flex-grow w-full ">
-            <label className="text-2xl text-[#0e5fc0]">
+          <div className="flex flex-col flex-grow-[2] w-full ">
+            <label className="text-2xl text-[#0e5fc0] text-left">
               @username
               <Input
                 value={data.username}
                 name="username"
+                setOpen={setOpen}
                 onChange={handleChange}
               />
             </label>
             <label className="text-2xl text-[#0e5fc0]">
               Name
-              <Input value={data.name} name="name" onChange={handleChange} />
+              <Input
+                value={data.name}
+                name="name"
+                setOpen={setOpen}
+                onChange={handleChange}
+              />
             </label>
             <label className="text-2xl text-[#0e5fc0]">
               Bio
-              <Input value={data.bio} name="bio" onChange={handleChange} />
+              <Input
+                value={data.bio}
+                name="bio"
+                setOpen={setOpen}
+                onChange={handleChange}
+              />
             </label>
           </div>
           <div className=" flex flex-col gap-8 items-center flex-grow">
@@ -494,7 +750,9 @@ export default function EditProfile() {
               Change Password
             </Button>
             <div className="flex gap-6">
-              <Button>Save</Button>
+              <Button type="button" onClick={handleOnClick}>
+                Save
+              </Button>
               <Button
                 reverse={true}
                 onClick={() => {

@@ -5,26 +5,67 @@ import { AiFillEyeInvisible } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Background from "../components/Background";
+import {useMutation} from '@tanstack/react-query'
+import { newpassword } from "../api/user";
+import { ACTIONS, useAlertAtom } from "../store/AlertStore";
+import Loader from "../components/Loader";
 
 export default function NewPassword() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
   const [empty, setEmpty] = useState(false);
+  const [, setAlert] = useAlertAtom();
   const [passwords, setPassword] = useState({ password: "", cPass: "" });
+  const {isLoading,mutate}=useMutation({
+    mutationFn:newpassword,
+    onError:(error)=>{
+      if (error.response === undefined) {
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (error.response.status === 500) {
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess:(res)=>{
+      if(res.status===200 && res.data.success){
+        localStorage.removeItem('authToken')
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: `${res.data.messege}!, Now try to login`,
+            alertType: "success",
+          },
+        });
+        navigate('/login',{replace:true})
+      }
+    }
+  })
 
   function handleOnSubmit(e) {
     e.preventDefault();
-    console.log("Hello2");
     if (error) {
       return;
     }
     if (!passwords.password.length || !passwords.cPass.length) {
       setEmpty(true);
+      return
     }
-    console.log(passwords);
-    //do some task
-    navigate("/login", { replace: true });
+    mutate({newpassword:passwords.password})
   }
 
   return (
@@ -58,6 +99,7 @@ export default function NewPassword() {
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
+                min={5}
                 onChange={({ target }) => {
                   setEmpty(false);
                   setError(false);
@@ -67,6 +109,7 @@ export default function NewPassword() {
                   }));
                 }}
                 onBlur={(e) => {
+                  if(passwords.password.length<5) return setError(true)
                   if (
                     passwords.cPass.length &&
                     passwords.cPass !== e.target.value
@@ -108,6 +151,7 @@ export default function NewPassword() {
               <input
                 type={showPassword ? "text" : "password"}
                 name="cPass"
+                min={5}
                 onChange={({ target }) => {
                   setEmpty(false);
                   setPassword((prev) => ({
@@ -116,7 +160,6 @@ export default function NewPassword() {
                   }));
                 }}
                 onBlur={() => {
-                  console.log("hello 1");
                   if (
                     passwords.cPass.length &&
                     passwords.cPass !== passwords.password
@@ -140,7 +183,7 @@ export default function NewPassword() {
               >
                 {empty
                   ? "All fields needs to be filled"
-                  : "Password should be matched"}
+                  :(passwords.password.length<5 )?"Password cant be less then 5 characters":"Password should be matched"}
               </span>
               <button
                 type="button"
@@ -158,7 +201,7 @@ export default function NewPassword() {
                 )}
               </button>
             </label>
-            <Button type="submit">Confirm</Button>
+            <Button type="submit" condition={isLoading}>{isLoading?<Loader/>:"Confirm"}</Button>
           </form>
         </section>
       </div>

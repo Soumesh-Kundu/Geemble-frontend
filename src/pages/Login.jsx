@@ -4,12 +4,62 @@ import { AiFillEye } from "react-icons/ai";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { useState, useEffect } from "react";
 import Button from "../components/Button";
-import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../api/auth";
+import { ACTIONS, useAlertAtom } from "../store/AlertStore";
+import Loader from "../components/Loader";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
+  const [empty, setEmpty] = useState(false);
+  const [, setAlert] = useAlertAtom();
+  const navigate = useNavigate();
   const [data, setData] = useState({ username: "", password: "" });
+  const { isLoading, mutate } = useMutation({
+    mutationFn: login,
+    onError: (error) => {
+      if (error.response === undefined) {
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (error.response.status === 400) {
+        setError(false);
+        setError(true);
+        return
+      }
+      if (error.response.status === 500) {
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess: (data) => {
+      if (data.status === 200) {
+        localStorage.setItem("authToken", data.data.authToken);
+        navigate("/",{replace:true});
+        setAlert({
+          type:ACTIONS.SET_ALERT,
+          payload:{
+            messege:"Welcome!! 🎉🎉",
+            alertType:'success'
+          }
+        })
+      }
+    },
+  });
   const welcomeTexts = [
     "Hey! everyone is missing you",
     "Hello, fast!! everyone is wating",
@@ -17,21 +67,20 @@ export default function Login() {
   ];
   let [WelcomeText, setWelcomeText] = useState("");
 
-  function handleOnBlur(e) {
-    if (!error) {
-      setData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-      return;
-    }
-    if (data[e.target.name] !== e.target.value) {
-      setError(false);
-      setData((prev) => ({ ...prev, [e.target]: e.target.value }));
-      return;
-    }
+  function handleOnChange(e) {
+    setError(false);
+    setEmpty(false)
+    setData(prev=>({...prev,[e.target.name]:e.target.value}))
   }
 
   function handleOnSumbit(e) {
     e.preventDefault();
-    setError(true);
+    if(!data.username.length || !data.password.length)
+    {
+      setEmpty(true)
+      return 
+    }
+    mutate(data);
   }
 
   useEffect(() => {
@@ -62,10 +111,10 @@ export default function Login() {
             >
               <span
                 className={`text-red-600 w-full text-left ${
-                  error ? "visible" : "invisible"
+                  error || empty ? "visible" : "invisible"
                 }`}
               >
-                username or password is invalid
+                {empty?'Something left to be filled':'username or password is invalid'}
               </span>
               <label
                 htmlFor="username"
@@ -77,7 +126,7 @@ export default function Login() {
                   id="username"
                   name="username"
                   placeholder="e.g. Alex Marcer"
-                  onBlur={handleOnBlur}
+                  onChange={handleOnChange}
                   className={`h-10 w-full bg-[#ffffff] rounded-lg outline-none px-3 text-lg text-black ${
                     error ? "shake-danger" : ""
                   }  ${error ? "border-2  border-red-500" : ""}`}
@@ -91,7 +140,7 @@ export default function Login() {
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
-                  onBlur={handleOnBlur}
+                  onChange={handleOnChange}
                   placeholder="*******"
                   className={`h-10 w-full bg-[#ffffff] rounded-lg outline-none px-3 text-lg text-black ${
                     error ? "shake-danger" : ""
@@ -113,7 +162,9 @@ export default function Login() {
                   )}
                 </button>
               </label>
-              <Button type="submit">Log In</Button>
+              <Button type="submit" condition={isLoading}>
+                {isLoading?<Loader />:"Log In"}
+              </Button>
             </form>
             <Link
               to="/forgetpassword"
@@ -124,7 +175,7 @@ export default function Login() {
             <div className="h-[2px] w-full bg-white z-50"></div>
             <span className="text-lg">
               New here?{" "}
-              <Link to="/register" className="text-[#0E5FC0] underline">
+              <Link to="/register" replace className="text-[#0E5FC0] underline">
                 Sign In
               </Link>{" "}
             </span>

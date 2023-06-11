@@ -8,6 +8,7 @@ const defaultState = {
     _id: "",
     username: "",
     time:"",
+    profilePicture:"",
     caption: "",
     likes:[],
     comments:[],

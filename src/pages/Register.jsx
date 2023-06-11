@@ -4,17 +4,68 @@ import male from "../assets/male.gif";
 import female from "../assets/female.gif";
 import { AiFillEye } from "react-icons/ai";
 import { AiFillEyeInvisible } from "react-icons/ai";
-import { useState, useRef } from "react";
+import { useState } from "react";
+import {useMutation} from '@tanstack/react-query'
 import Button from "../components/Button";
-import { Link } from "react-router-dom";
-
+import { Link,useNavigate } from "react-router-dom";
+import { register } from "../api/auth";
+import { useAlertAtom,ACTIONS } from "../store/AlertStore";
+import Loader from "../components/Loader";
+ 
 export default function Register() {
+  const navigate=useNavigate()
   const [showPassword, setShowPassword] = useState(false);
   const [valid, setValid] = useState({
     email: true,
     name: true,
     username: true,
   });
+  const [,setAlert]=useAlertAtom()
+  const {isLoading,mutate}=useMutation({
+    mutationFn:register,
+    onError: ({response}) => {
+      if (response === undefined) {
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+      if (response.status === 400 && response.data.email ) {
+        setError(prev=>([...prev,{name:'email',msg:""}]))
+        return 
+      }
+      if (response.status === 400 && response.data.username ) {
+        setError(prev=>([...prev,{name:'email',msg:""}]))
+        return 
+      }
+      if (response.status === 500) {
+        setAlert({
+          type: ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        return;
+      }
+    },
+    onSuccess: (response) => {
+      console.log(response)
+      if (response.status === 201) {
+        localStorage.setItem("authToken", response.data.authToken);
+        sessionStorage.setItem('sessionToken',response.data.OTPtoken)
+        navigate("/verify/user",{state:{
+          redirect:'/',
+          email:data.email
+        },replace:true});
+      }
+    },
+  })
+
   const [error, setError] = useState([]);
   const [empty, setEmpty] = useState(false);
   const [data, setData] = useState({
@@ -32,7 +83,6 @@ export default function Register() {
   function handleOnBlur(e) {
     if (e.target.name === "email") {
       handleEmail(e.target.value);
-      return;
     }
     if (e.target.name === "username") {
       checkUsername(e.target.value);
@@ -142,6 +192,17 @@ export default function Register() {
       }, 100);
       return;
     }
+    if(value.length>13){
+      setValid((prev) => ({ ...prev, username: false }));
+      setError((prev) => prev.filter((item) => item.name !== "username"));
+      setTimeout(() => {
+        setError((prev) => [
+          ...prev,
+          { name: "username", error: "can't be more than 13 character" },
+        ]);
+      }, 100);
+      return;
+    }
     if (!usernameRegex.test(value)) {
       setValid((prev) => ({ ...prev, username: false }));
       setError((prev) => prev.filter((item) => item.name !== "username"));
@@ -182,6 +243,7 @@ export default function Register() {
 
   function handleOnSumbit(e) {
     e.preventDefault();
+   
     if (
       !(
         data.name &&
@@ -197,14 +259,16 @@ export default function Register() {
     if (!(valid.email && valid.name && valid.username)) {
       return;
     }
+    mutate(data)
+    // navigate('/verify/user',{state:{email:data.email,redirect:'/'},replace:true})
   }
   return (
     <>
-      <div className="flex justify-center items-start h-screen w-screen z-50 ">
-        <main className="flex flex-col lg:flex-row items-center px-5 lg:p-0  gap-2 md:gap-6 lg:gap-16 w-full justify-center">
+      <div  className="flex justify-center items-start h-auto w-screen z-50  ">
+        <main className="flex flex-col  items-center my-8 px-5 lg:p-0  gap-4 overflow-auto md:gap-6 w-full justify-center h-auto" >
           <section
             id="hero"
-            className="flex flex-col w-4/5 md:w-2/5 lg:w-1/3 gap-5 justify-center items-center lg:-translate-y-11 lg:sticky lg:top-[55%]"
+            className="flex flex-col w-4/5 md:w-2/5 lg:w-1/3 gap-5 justify-center items-center  "
           >
             <img src={Geemble} alt="" className="w-3/4 lg:w-3/5" />
             <h2
@@ -217,10 +281,9 @@ export default function Register() {
               memories
             </h2>
           </section>
-          <div className="md:w-[1px] lg:h-[75vh] bg-[#e4e3e3] z-50 md:sticky  md:top-[25vh]"></div>
           <section
             id="login"
-            className="w-full lg:my-12 md:w-1/2 lg:w-1/3 bg-[#dbdbdb85] backdrop-blur-3xl rounded-xl grid place-items-center py-4 px-6 gap-0 "
+            className="w-full lg:my-2 md:w-3/5 lg:w-1/3 bg-[#dbdbdb85] backdrop-blur-3xl rounded-xl grid place-items-center py-4 px-6 gap-0 min-h-screen"
           >
             <form
               onSubmit={handleOnSumbit}
@@ -439,7 +502,7 @@ export default function Register() {
               >
                 All fields needs to be filled
               </span>
-              <Button type="submit">Sign In</Button>
+              <Button type="submit" condition={isLoading}>{isLoading?<Loader/>:"Sign In"}</Button>
             </form>
             <div className="h-[2px] w-full bg-white z-50"></div>
             <span className="text-lg mt-2">

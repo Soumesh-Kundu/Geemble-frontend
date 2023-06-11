@@ -4,11 +4,11 @@ import boy from "../assets/boy.png";
 
 
 const authorAtom = atom({
-    name: "Soumesh Kundu",
-    username: "tikusoumobbx",
-    email:"iamsoumo26@gmail.com",
-    bio:"hello gues",
-    gender:"male",
+    name: "",
+    username: "",
+    email:"",
+    bio:"",
+    gender:"",
     profilePicture: false?boy:girl,
 })
 

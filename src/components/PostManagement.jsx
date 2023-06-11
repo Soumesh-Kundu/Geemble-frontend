@@ -3,35 +3,82 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { RxCross1 } from "react-icons/rx";
 import { useDailogAtom, ACTIONS as DailogAction } from "../store/DailogStore";
 import { usePostAtom, ACTIONS } from "../store/CurrentPost";
+import { create, update } from "../api/post";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAlertAtom, ACTIONS as ALERT_ACTIONS } from "../store/AlertStore";
+import Loader from "./Loader";
 
+const PostMap = new Map([
+  ["create", create],
+  ["update", update],
+]);
 export default function PostManagement({
   author,
   caption = "",
   postedImage = "",
+  profilePicture,
   Button_text,
-  onSubmit,
+  action,
 }) {
-  const [, setCurrentPost] = usePostAtom();
+  const [{ _id }, setCurrentPost] = usePostAtom();
   const location = useLocation();
   const [, setDailog] = useDailogAtom();
+  const [, setAlert] = useAlertAtom();
   const [postDetails, setPostDeitals] = useState({
     caption,
     uploadImage: postedImage
-      ? `http://192.168.0.103:5500/api/${postedImage}`
+      ? `${import.meta.env.VITE_BASE_URL}/api/${postedImage}`
       : "",
   });
+
+  const queryClient = useQueryClient();
+  const { isLoading, mutate } = useMutation({
+    mutationFn: PostMap.get(action),
+    onError({ response }) {
+      if (response === undefined) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Server is Down, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        setCurrentPost({ type: ACTIONS.CLEAR });
+        return;
+      }
+      if (response.status === 401) {
+        setCurrentPost({ type: ACTIONS.CLEAR });
+        return;
+      }
+      if (response.status === 500) {
+        setAlert({
+          type: ALERT_ACTIONS.SET_ALERT,
+          payload: {
+            messege: "Oops! Some error has occured, Sorry for inconvinence",
+            alertType: "error",
+          },
+        });
+        setCurrentPost({ type: ACTIONS.CLEAR });
+        return;
+      }
+    },
+    onSuccess(res) {
+      if (res.status === 200 && res.data.success) {
+        queryClient.invalidateQueries({ queryKey: ["posts"] });
+        setCurrentPost({ type: ACTIONS.CLEAR });
+      }
+    },
+  });
+
   const fileRef = useRef();
   function handleSubmit(e) {
     e.preventDefault();
-    if (postDetails.caption === "" && postDetails.uploadImage === "") {
-      console.log("cant post");
-      return;
-    }
-    onSubmit();
-    const formData = new FormData(e.target);
-    for (let value of formData.entries()) {
-      console.log({ [value[0]]: value[1] });
-    }
+    const formData = new FormData();
+    formData.append("caption", postDetails.caption);
+    formData.append("uploadImage", fileRef.current.files[0]);
+    const id = _id;
+    mutate({ params: _id, body: formData });
+    return;
   }
   function handleFileChange(e) {
     if (e.target.files.length === 0) {
@@ -48,7 +95,13 @@ export default function PostManagement({
     <div className="bg-[#DDDDDD]  w-full mx-3 lg:mx-0 md:w-4/6 tracking-wide lg:w-2/6 min-h-min p-3 md:p-4 rounded-3xl flex flex-col gap-3">
       <div id="author" className="flex h-14 gap-5 relative items-center">
         <div id="profilepicture">
-          <div className="w-10 h-10 rounded-full bg-pink-400"></div>
+          <div className="w-10 h-10 rounded-full overflow-hidden">
+            <img
+              src={`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
+              alt="profilePicture"
+              className="w-full rounded-full overflow-hidden"
+            />
+          </div>
         </div>
         <div id="username" className="text-[#0E5FC0] text-md flex-grow">
           @{author}
@@ -112,7 +165,7 @@ export default function PostManagement({
             accept="image/*"
             onChange={handleFileChange}
           />
-          {postDetails.uploadImage && location.pathname.includes("create") && (
+          {postDetails.uploadImage && action === "create" && (
             <button
               type="button"
               className="absolute right-2 top-2 p-2 bg-gray-500 text-gray-300 hover:bg-slate-500  duration-300 rounded-full"
@@ -130,8 +183,9 @@ export default function PostManagement({
         <button
           type="submit"
           className="w-full bg-[#0E5FC0] text-white p-2 rounded-lg"
+          disabled={isLoading}
         >
-          {Button_text}
+          {isLoading ? <Loader /> : Button_text}
         </button>
       </form>
     </div>

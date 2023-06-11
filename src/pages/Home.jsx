@@ -1,15 +1,25 @@
 import Navbar from "../components/Navbar";
 import Liked from "../components/Liked";
-import { Outlet,useLocation } from "react-router-dom";
+import { Outlet,useLocation,useNavigate } from "react-router-dom";
 import { useState,useRef,useEffect } from "react";
 import {EditPost,Post} from "./";
 import { usePostAtom,ACTIONS } from "../store/CurrentPost";
+import {useQuery} from '@tanstack/react-query'
+import { getDetails } from "../api/user";
+import { useAuthorAtom } from "../store/Authstore";
 
 
 export default function Home() {
   const  [isCrossed,setIsCrossed]=useState(false)
   const [{activeFor,likes},setCurrentPost]=usePostAtom()
-
+  const navigator=useNavigate()
+  const [,setAuthor]=useAuthorAtom()
+  const {isLoading,data}=useQuery({
+    queryKey:['users/admin'],
+    queryFn:getDetails,
+    refetchOnWindowFocus:false
+  })
+  
   const appRef=useRef()
   const location=useLocation()
   const changeNavbarColor = () => {
@@ -20,12 +30,21 @@ export default function Home() {
     }
   };
   useEffect(() => {
+    if(localStorage.getItem('authToken')===null){
+      navigator('/login')
+    }
     window.addEventListener("scroll", changeNavbarColor, true);
     return () => {
       window.removeEventListener("scroll", changeNavbarColor);
     };
   }, []);
-
+  useEffect(()=>{
+    if(!isLoading && data!==undefined){
+      setAuthor({
+        ...data.data.result
+      })
+    }
+  },[data])
 
   return (
     <>

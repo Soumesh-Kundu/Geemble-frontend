@@ -3,35 +3,87 @@ import Geemble from "../assets/Geemble.png";
 import { useState} from "react";
 import Button from "../components/Button";
 import { Link,useNavigate } from "react-router-dom";
+import {useMutation} from '@tanstack/react-query'
+import {forgetpassword} from '../api/auth'
+import { ACTIONS, useAlertAtom } from "../store/AlertStore";
+import Loader from "../components/Loader";
 
 export default function ForgetPassword() {
-  const [error, setError] = useState(false);
+  const [error, setError] = useState({
+    has:false,
+    message:"asdf"
+  });
   const [data, setData] = useState({ email: "" });
+  const [, setAlert] = useAlertAtom();
   const navigate=useNavigate()
+  const {isLoading,mutate}=useMutation({
+    mutationFn:forgetpassword,
+    onError:(error)=>{
+        if (error.response === undefined) {
+          setAlert({
+            type: ACTIONS.SET_ALERT,
+            payload: {
+              messege: "Oops! Server is Down, Sorry for inconvinence",
+              alertType: "error",
+            },
+          });
+          return;
+        }
+        if (error.response.status === 401) {
+          console.log("hello")
+          setError((prev)=>({...prev,has:false}));
+          setError((prev)=>({...prev,has:true,message:"user doesn't exists"}));
+          return 
+        }
+        if (error.response.status === 500) {
+          setAlert({
+            type: ACTIONS.SET_ALERT,
+            payload: {
+              messege: "Oops! Some error has occured, Sorry for inconvinence",
+              alertType: "error",
+            },
+          });
+          setError((prev)=>({...prev,has:false}));
+          return;
+        }
+    },
+    onSuccess:(res)=>{
+      if(res.status===200 && res.data.success){
+        sessionStorage.setItem('sessionToken',res.data.OTPtoken)
+        navigate('/verify',{state:{email:data.email,redirect:'/newpassword'},replace:true})
+        return
+      }
+    }
+  })
 
   function handleOnBlur({ target }) {
     const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (target.value === "") {
-      setError(false);
+      setError((prev)=>({...prev,has:false}));
       setData({ email: target.value });
       return;
     }
     if (regex.test(target.value)) {
-      setError(false);
+      setError((prev)=>({...prev,has:false}));
       setData({ email: target.value });
     } else {
-      setError(false);
+      setError((prev)=>({...prev,has:false}));
       setTimeout(() => {
-        setError(true);
+        setError((prev)=>({...prev,has:true,message:"Email is invalid"}));
       }, 10);
     }
   }
 
   function handleOnSumbit(e) {
     e.preventDefault();
-    //do something
-    console.log("hello")
-    navigate('/verify',{state:{email:data.email},replace:true})
+    if(error.has){
+      setError((prev)=>({...prev,has:false}));
+      setTimeout(() => {
+        setError((prev)=>({...prev,has:true}));
+      }, 5);
+      return 
+    }
+    mutate(data)
   }
 
   return (
@@ -71,19 +123,19 @@ export default function ForgetPassword() {
                   name="email"
                   onBlur={handleOnBlur}
                   className={`h-10 w-full bg-[#ffffff] rounded-lg outline-none px-3 text-lg text-black ${
-                    error ? "shake-danger" : ""
-                  }  ${error ? "border-2  border-red-500" : ""}`}
+                    error.has ? "shake-danger" : ""
+                  }  ${error.has ? "border-2  border-red-500" : ""}`}
                 />
                 <span
                   className={`text-red-600 w-full text-left text-base ${
-                    error ? "visible" : "invisible"
+                    error.has ? "visible" : "invisible"
                   }`}
                 >
-                  email is invalid
+                  {error.message}
                 </span>
               </label>
 
-              <Button type="submit">Verify</Button>
+              <Button type="submit" condition={isLoading}>{isLoading?<Loader/>:'Verify'}</Button>
             </form>
             <div className="h-[2px] w-full bg-white z-50"></div>
             <span className="text-lg">
