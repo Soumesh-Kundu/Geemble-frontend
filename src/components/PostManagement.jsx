@@ -185,7 +185,7 @@ export default function PostManagement({
           className="w-full h-10 bg-[#0E5FC0] text-white p-2 rounded-lg grid place-items-center"
           disabled={isLoading}
         >
-        <div className="w-2/3">
+        <div className="w-1/2">
                   {isLoading ? <Loader /> : Button_text}
         </div>
         </button>
