@@ -16,7 +16,7 @@ function UserDiv({ name, username, profilePicture }) {
     >
       <div className="h-12 w-12 md:h-16 md:w-16 rounded-full overflow-hidden">
         <img
-          src={profilePicture}
+          src={`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
           alt="dp"
           className="w-full overflow-hidden rounded-full"
         />
