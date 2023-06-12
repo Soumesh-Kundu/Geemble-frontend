@@ -140,7 +140,13 @@ export default function Post({
       }
     },
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+       if(location.pathname===`/profile/${username}`)
+      {
+        queryClient.invalidateQueries({ queryKey: ["posts",username] });
+      }
+      else{
+        queryClient.invalidateQueries({ queryKey: ["posts"] });
+      }
     },
   });
 
@@ -185,7 +191,7 @@ export default function Post({
             @{username}
           </div>
           <div id="Date" className="text-slate-500 text-sm">
-            {date.toDateString().slice(3, 10)} at
+            {date.toDateString().slice(3, 10)} at 
             {date.toTimeString().slice(0, 5)}
           </div>
         </div>
