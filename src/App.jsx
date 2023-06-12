@@ -22,15 +22,6 @@ import { useAlertAtom, ACTIONS } from "./store/AlertStore";
 function App() {
   const [{ isNotConfirmed }] = useDailogAtom();
   const [, setAlert] = useAlertAtom();
-  useEffect(() => {
-    setAlert({
-      type: ACTIONS.SET_ALERT,
-      payload: {
-        messege: "hello world",
-        alertType: "success",
-      },
-    });
-  }, []);
   return (
     <div  >
       <Router>

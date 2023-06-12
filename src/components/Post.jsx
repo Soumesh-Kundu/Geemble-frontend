@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate,useParams } from "react-router-dom";
 import { FaRegComment } from "react-icons/fa";
 import { AiOutlineLike, AiFillLike } from "react-icons/ai";
 import { useAuthorAtom } from "../store/Authstore";
@@ -22,6 +22,7 @@ export default function Post({
 }) {
   const [{ username: user, profilePicture }] = useAuthorAtom();
   const [, setDailog] = useDailogAtom();
+  const location=useLocation()
   const navigator=useNavigate()
   const [, setCurrentPost] = usePostAtom();
   const [, setAlert] = useAlertAtom();
@@ -43,7 +44,8 @@ export default function Post({
       await queryClient.cancelQueries({ queryKey: ["posts"] });
 
       // Snapshot the previous value
-      const previousValue = queryClient.getQueryData(["posts"]);
+      const previousValue = location.pathname===`/profile/${username}`?queryClient.getQueryData(["posts",username]):queryClient.getQueryData(["posts"])
+      console.log(previousValue)
       const allpages = cloneDeep(previousValue);
       const allposts = previousValue.pages.flatMap((item) => item.posts);
 
@@ -71,17 +73,35 @@ export default function Post({
         });
       }
 
-      queryClient.setQueryData(["posts"], (old) => allpages);
+      if(location.pathname===`/profile/${username}`)
+      {
+        queryClient.setQueryData(["posts",username], (old) => allpages);
+      }
+      else{
+        queryClient.setQueryData(["posts"], (old) => allpages);
+      }
 
       // Return a context object with the snapshotted value
       return { previousValue };
     },
     onError: (err, newTodo, context) => {
-      queryClient.setQueryData(["posts"], context.previousValue);
+      if(location.pathname===`/profile/${username}`)
+      {
+        queryClient.setQueryData(["posts",username], context.previousValue);
+      }
+      else{
+        queryClient.setQueryData(["posts"], context.previousValue);
+      }
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      if(location.pathname===`/profile/${username}`)
+      {
+        queryClient.invalidateQueries({ queryKey: ["posts",username] });
+      }
+      else{
+        queryClient.invalidateQueries({ queryKey: ["posts"] });
+      }
     },
   });
 

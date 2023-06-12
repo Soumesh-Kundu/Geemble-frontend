@@ -2,7 +2,7 @@ import { Container } from "../layouts";
 import { dummyData } from "../data/feed";
 import Post from "../components/Post";
 import { Outlet } from "react-router-dom";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery,useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { getPosts } from "../api/post";
 import Loader2 from "../components/Loader2";
@@ -10,12 +10,14 @@ import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function Feed() {
   const [posts, setPosts] = useState([]);
+  const queryClient=useQueryClient()
   const { isLoading, isSuccess, data, fetchNextPage, hasNextPage } =
     useInfiniteQuery({
       queryKey: ["posts"],
       queryFn: ({ pageParam = 1 }) => getPosts(pageParam),
       getNextPageParam: (prevData) => prevData.nextPage,
       refetchOnWindowFocus: false,
+      refetchOnMount:true,
       enabled:localStorage.getItem('authToken')!==null
     });
 
@@ -25,6 +27,9 @@ export default function Feed() {
     }
   }, [data]);
 
+  useEffect(()=>{
+    queryClient.invalidateQueries(['posts'])
+  },[])
   if (isLoading && posts.length === 0) {
     return <Loader2 />;
   }

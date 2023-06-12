@@ -84,8 +84,10 @@ export default function Login() {
   }
 
   useEffect(() => {
+
     let random = Math.round(Math.random() * (welcomeTexts.length - 1));
     setWelcomeText(welcomeTexts[random]);
+
   }, []);
   return (
     <>

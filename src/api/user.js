@@ -22,20 +22,20 @@ export async function verify(body) {
     console.log(localStorage.getItem('authToken'))
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/user/verify`, {
         ...body
-    },{
+    }, {
         headers: {
             'auth-token': localStorage.getItem('authToken'),
-            'session-token':sessionStorage.getItem('sessionToken')
+            'session-token': sessionStorage.getItem('sessionToken')
         }
     })
     return response
 }
 
 export async function resend() {
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/user/resend`,{
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/user/resend`, {
         headers: {
             'auth-token': localStorage.getItem('authToken'),
-            'session-token':sessionStorage.getItem('sessionToken')
+            'session-token': sessionStorage.getItem('sessionToken')
         }
     })
     return response
@@ -51,8 +51,8 @@ export async function getUser(params) {
     return response
 }
 export async function changeDP(body) {
-    const response = await Axios.post('changeDP', body,{
-        headers:{
+    const response = await Axios.post('changeDP', body, {
+        headers: {
             'Content-Type': 'multipart/form-data'
         }
     })
@@ -61,9 +61,9 @@ export async function changeDP(body) {
 export async function newpassword(body) {
     const response = await Axios.post('newpassword', {
         ...body
-    },{
-        headers:{
-            'auth-token':localStorage.getItem('authToken')
+    }, {
+        headers: {
+            'auth-token': localStorage.getItem('authToken')
         }
     })
     return response

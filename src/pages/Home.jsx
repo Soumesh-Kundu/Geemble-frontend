@@ -17,7 +17,7 @@ export default function Home() {
   const {isLoading,data}=useQuery({
     queryKey:['users/admin'],
     queryFn:getDetails,
-    refetchOnWindowFocus:false
+    refetchOnWindowFocus:false,
   })
   
   const appRef=useRef()
