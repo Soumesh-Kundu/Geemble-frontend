@@ -14,7 +14,13 @@ function UserDiv({ name, username, profilePicture }) {
       to={`/profile/${username}`}
       className="bg-gray-100 hover:bg-gray-300 duration-300 w-full px-4 py-2 rounded-xl md:py-3 flex gap-5 items-center justify-start"
     >
-      <div className="h-12 w-12 md:h-16 md:w-16 rounded-full bg-pink-600"></div>
+      <div className="h-12 w-12 md:h-16 md:w-16 rounded-full overflow-hidden">
+        <img
+          src={profilePicture}
+          alt="dp"
+          className="w-full overflow-hidden rounded-full"
+        />
+      </div>
       <div className="flex flex-col justify-start">
         <div className="text-[#0e5fc0] text-xl ">@{username}</div>
         <div className=" text-slate-500 text-md">{name}</div>
@@ -28,13 +34,10 @@ export default function search() {
     username: "",
   });
 
-  let regex=new RegExp('^'+searchParams.get('username'))
+  let regex = new RegExp("^" + searchParams.get("username"));
   const [, setAlert] = useAlertAtom();
 
-  const {
-    data: res,
-    isLoading,
-  } = useQuery({
+  const { data: res, isLoading } = useQuery({
     queryKey: ["users", searchParams.get("username")],
     queryFn: () => searchUsers(searchParams.get("username")),
     onError(error) {
@@ -89,22 +92,28 @@ export default function search() {
           <Container
             padding="py-12 px-2 md:px-28 lg:px-36 flex flex-col items-center"
             height={"h-full"}
-          > 
-            <h1 className="text-[#0E5FC0] sm:text-3xl lg:text-4xl">Nothing found '@{searchParams.get('username')}'</h1>
-            <img src="notfound2.jpg" alt="not found photo" className="w-5/6 lg:w-6/12 " />
+          >
+            <h1 className="text-[#0E5FC0] sm:text-3xl lg:text-4xl">
+              Nothing found '@{searchParams.get("username")}'
+            </h1>
+            <img
+              src="notfound2.jpg"
+              alt="not found photo"
+              className="w-5/6 lg:w-6/12 "
+            />
           </Container>
         </section>
       </>
     );
   }
   function handleChange(value) {
-    regex=new RegExp('^'+searchParams.get('username'))
+    regex = new RegExp("^" + searchParams.get("username"));
     setSearchParams({ username: value });
-    if(regex.test(searchParams.get('username'))){
-      console.log('hello')
-      return
+    if (regex.test(searchParams.get("username"))) {
+      console.log("hello");
+      return;
     }
-    console.log('bye')
+    console.log("bye");
   }
 
   return (
