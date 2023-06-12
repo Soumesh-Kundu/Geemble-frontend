@@ -191,8 +191,7 @@ export default function Post({
             @{username}
           </div>
           <div id="Date" className="text-slate-500 text-sm">
-            {date.toDateString().slice(3, 10)} at 
-            {date.toTimeString().slice(0, 5)}
+            {`${date.toDateString().slice(3, 10)} at ${date.toTimeString().slice(0, 5)}`}
           </div>
         </div>
         {user === username && (
