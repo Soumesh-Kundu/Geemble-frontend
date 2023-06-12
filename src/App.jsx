@@ -18,10 +18,8 @@ import ConfirmationDailog from "./components/ConfirmationDailog";
 import ScrollToTop from "./components/ScrollToTop";
 import Alert from "./components/Alert";
 import { useEffect } from "react";
-import { useAlertAtom, ACTIONS } from "./store/AlertStore";
 function App() {
   const [{ isNotConfirmed }] = useDailogAtom();
-  const [, setAlert] = useAlertAtom();
   return (
     <div  >
       <Router>
