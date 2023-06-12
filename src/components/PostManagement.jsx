@@ -182,7 +182,7 @@ export default function PostManagement({
         </div>
         <button
           type="submit"
-          className="w-full h-10 bg-[#0E5FC0] text-white p-2 rounded-lg grid place-items-center"
+          className="w-full h-12 bg-[#0E5FC0] text-white p-2 rounded-lg grid place-items-center"
           disabled={isLoading}
         >
         <div className="w-1/2">
