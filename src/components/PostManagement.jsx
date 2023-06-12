@@ -182,10 +182,12 @@ export default function PostManagement({
         </div>
         <button
           type="submit"
-          className="w-full h-48 bg-[#0E5FC0] text-white p-2 rounded-lg"
+          className="w-full h-16 bg-[#0E5FC0] text-white p-2 rounded-lg grid place-items-center"
           disabled={isLoading}
         >
-          {isLoading ? <Loader /> : Button_text}
+        <div className="w-2/3">
+                  {isLoading ? <Loader /> : Button_text}
+        </div>
         </button>
       </form>
     </div>
