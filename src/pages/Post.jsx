@@ -35,7 +35,7 @@ function Comment({
         <img
           src={/firebasestorage/.test(profilePicture)?profilePicture:`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
           alt="profilePicture"
-          className="w-full rounded-full"
+          className="w-full h-full object-cover rounded-full"
         />
       </div>
       <div className="bg-[#e6e6e6] max-w-full px-4 py-2 rounded-2xl flex flex-col  ">

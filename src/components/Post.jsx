@@ -28,7 +28,7 @@ export default function Post({
   const [, setAlert] = useAlertAtom();
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [hasLiked, setLiked] = useState(
-    likes.map((data) => data.user).includes(user)
+    likes.find(((data) => data.user===user)!==undefined)
   );
   const queryClient = useQueryClient();
   const { mutate: likeMutate } = useMutation({
@@ -167,7 +167,7 @@ export default function Post({
   }
 
   useEffect(() => {
-    if (likes.map((data) => data.user).includes(user)) {
+    if (likes.find((data) => data.user===user) !==undefined) {
       setLiked(true);
     } else {
       setLiked(false);
