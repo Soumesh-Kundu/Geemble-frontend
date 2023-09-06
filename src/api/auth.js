@@ -9,8 +9,6 @@ const Axios = axios.create({
 export async function register(body) {
     const response = await Axios.post('register', {
         ...body
-    },{
-        withCredentials:true
     })
     return response
 }

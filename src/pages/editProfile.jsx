@@ -74,6 +74,7 @@ function ChangeProfilePic({ handleCancel }) {
     console.log(formData)
     mutate(formData)
   }
+
   return (
     <>
       <section className="h-screen w-screen grid place-items-center z-50 bg-[rgba(0,0,0,0.5)] absolute top-0 left-0 p-4 ">
@@ -144,7 +145,7 @@ function ChangeProfilePic({ handleCancel }) {
           </form>
           <button
             type="submit"
-            className="w-full bg-[#0E5FC0] text-white p-2 rounded-lg"
+            className={`w-full bg-[#0E5FC0] text-white p-2  rounded-lg ${isLoading && '!py-5 !px-24'}`}
             onClick={handleOnClick}
             disabled={isLoading}
           >
@@ -647,7 +648,12 @@ export default function EditProfile() {
   if (user !== username) {
     return <NotFound />;
   }
-
+  document.title=`Geemble | ${username}`
+  useEffect(()=>{
+    return ()=>{
+      document.title='Geemble'
+    }
+  })
   function handleOnClick() {
     if(isOpen.name || isOpen.username || isOpen.bio ){
       setAlert({
@@ -659,7 +665,6 @@ export default function EditProfile() {
       });
       return
     }
-    // console.log(data)
     mutate({
       name:name===data.name?undefined:data.name,
       username:username===data.username?undefined:data.username,
@@ -683,9 +688,9 @@ export default function EditProfile() {
             >
               <div className="h-[10.5rem] w-[10.5rem] overflow-hidden rounded-full">
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
-                  alt=""
-                  className=" w-full   rounded-full object-left-bottom"
+                  src={/firebasestorage/.test(profilePicture)?profilePicture:`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
+                  alt="display image"
+                  className=" w-full h-full  rounded-full object-cover"
                 />
               </div>
               <div className="absolute h-12 w-12 bg-[#A7A4A4] right-2 bottom-2 rounded-full grid place-items-center cursor-pointer">

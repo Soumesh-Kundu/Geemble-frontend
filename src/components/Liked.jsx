@@ -21,7 +21,7 @@ export default function Liked({likes,cancelFunction}) {
             likes.map((item) =>(
               <div key={item._id} className="p-2 w-full flex gap-3 items-center">
                 <div className="h-10 w-10 rounded-full overflow-hidden">
-                <img src={`${import.meta.env.VITE_BASE_URL}/api/${item.profilePicture}`} alt="dp picture" className="w-full rounded-full object-cover" />
+                <img src={/firebasestorage/.test(item.profilePicture)?item.profilePicture:`${import.meta.env.VITE_BASE_URL}/api/${item.profilePicture}`} alt="dp picture" className="w-full rounded-full h-full object-cover" />
                 </div>
                 <div className="text-[#0E5FC0] text-lg">@{item.user}</div>
               </div>

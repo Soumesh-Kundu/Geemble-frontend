@@ -143,7 +143,7 @@ export default function Login() {
                   type={showPassword ? "text" : "password"}
                   name="password"
                   onChange={handleOnChange}
-                  placeholder="*******"
+                  placeholder="•••••••••"
                   className={`h-10 w-full bg-[#ffffff] rounded-lg outline-none px-3 text-lg text-black ${
                     error ? "shake-danger" : ""
                   }  ${error ? "border-2  border-red-500" : ""}`}

@@ -180,9 +180,9 @@ export default function Post({
         <div id="profilepicture">
           <div className="-z-10 w-10 h-10 rounded-full overflow-hidden">
             <img
-              src={`${import.meta.env.VITE_BASE_URL}/api/${userDp}`}
+              src={/firebasestorage/.test(userDp)?userDp:`${import.meta.env.VITE_BASE_URL}/api/${userDp}`}
               alt="profilePicture"
-              className="w-full rounded-full overflow-hidden"
+              className="w-full h-full object-cover rounded-full overflow-hidden"
             />
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function Post({
       {postedImage && (
         <div className=" object-cover max-h-[60%] flex justify-center">
           <img
-            src={`${import.meta.env.VITE_BASE_URL}/api/${postedImage}`}
+            src={/firebasestorage/.test(postedImage)?`${postedImage}`:`${import.meta.env.VITE_BASE_URL}/api/${postedImage}`}
             className="rounded-xl max-h-[60]"
             alt=""
           />

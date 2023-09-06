@@ -34,12 +34,13 @@ export default function Register() {
         });
         return;
       }
+      console.log(response)
       if (response.status === 400 && response.data.email ) {
         setError(prev=>([...prev,{name:'email',msg:""}]))
         return 
       }
       if (response.status === 400 && response.data.username ) {
-        setError(prev=>([...prev,{name:'email',msg:""}]))
+        setError(prev=>([...prev,{name:'username',msg:""}]))
         return 
       }
       if (response.status === 500) {
@@ -349,7 +350,7 @@ export default function Register() {
                   }`}
                 >
                   {valid.username
-                    ? "username is already taken"
+                    ? "username has already taken"
                     : "" +
                       error.find((item) => item.name === "username")?.error}
                 </span>
@@ -394,7 +395,7 @@ export default function Register() {
                   type={showPassword ? "text" : "password"}
                   name="password"
                   onBlur={handleOnBlur}
-                  placeholder="********"
+                  placeholder="•••••••••"
                   id="password"
                   onChange={() => {
                     setError((prev) =>

@@ -9,7 +9,6 @@ import { BsChevronDown } from "react-icons/bs";
 
 export default function Navbar({ isCrossed }) {
   const [{ username, profilePicture }] = useAuthorAtom();
-  console.log(profilePicture)
   const [, setDailog] = useDailogAtom();
   const [DropBoxOpen, setDropBoxOpen] = useState(false);
   const navigate = useNavigate();
@@ -79,9 +78,9 @@ export default function Navbar({ isCrossed }) {
         >
           <div className="w-full h-full overflow-hidden rounded-full">
             <img
-              src={`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
+              src={/firebasestorage/.test(profilePicture)?profilePicture:`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
               alt="displayPicture"
-              className="w-full rounded-full object-cover -z-10"
+              className="w-full h-full rounded-full object-cover -z-10"
             />
           </div>
           <div>

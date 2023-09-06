@@ -27,7 +27,7 @@ export default function PostManagement({
   const [postDetails, setPostDeitals] = useState({
     caption,
     uploadImage: postedImage
-      ? `${import.meta.env.VITE_BASE_URL}/api/${postedImage}`
+      ?/firebasestorage/.test(postedImage)?postedImage:`${import.meta.env.VITE_BASE_URL}/api/${postedImage}`
       : "",
   });
 
@@ -97,9 +97,9 @@ export default function PostManagement({
         <div id="profilepicture">
           <div className="w-10 h-10 rounded-full overflow-hidden">
             <img
-              src={`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
+              src={/firebasestorage/.test(profilePicture)?profilePicture:`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
               alt="profilePicture"
-              className="w-full rounded-full overflow-hidden"
+              className="w-full h-full object-cover rounded-full overflow-hidden"
             />
           </div>
         </div>

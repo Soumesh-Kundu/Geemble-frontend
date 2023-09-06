@@ -65,10 +65,12 @@ export default function UserProfile() {
       setIsCrossed(false);
     }
   };
+  document.title=`Geemble  |  ${username}`
   useEffect(() => {
     window.addEventListener("scroll", changeProfilePosition, true);
     queryClient.invalidateQueries(['posts',username])
     return () => {
+      document.title="Geemble"
       window.removeEventListener("scroll", changeProfilePosition);
     };
   }, []);
@@ -102,11 +104,11 @@ export default function UserProfile() {
             >
               <div className="h-[10.5rem] w-[10.5rem] rounded-full object-cover overflow-hidden">
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}/api/${
+                  src={/firebasestorage/.test(currentProfile.profilePicture)?currentProfile.profilePicture:`${import.meta.env.VITE_BASE_URL}/api/${
                     currentProfile.profilePicture
                   }`}
                   alt="displayPicute"
-                  className=" w-full  rounded-full"
+                  className=" w-full h-full object-cover  rounded-full"
                 />
               </div>
             </div>

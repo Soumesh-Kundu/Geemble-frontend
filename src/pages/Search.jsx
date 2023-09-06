@@ -16,7 +16,7 @@ function UserDiv({ name, username, profilePicture }) {
     >
       <div className="h-12 w-12 md:h-16 md:w-16 rounded-full overflow-hidden">
         <img
-          src={`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
+          src={/firebasestorage/.test(profilePicture)?profilePicture:`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
           alt="dp"
           className="w-full overflow-hidden rounded-full"
         />
@@ -88,18 +88,18 @@ export default function search() {
           handleChange={handleChange}
           name={searchParams.get("username")}
         />
-        <section id="users" className="h-full overflow-y-auto ">
+        <section id="users" className=" overflow-y-auto ">
           <Container
-            padding="py-12 px-2 md:px-28 lg:px-36 flex flex-col items-center"
-            height={"h-full"}
+            padding="py-12 lg:py-6  px-2 md:px-28 lg:px-36 flex flex-col items-center "
+            height={""}
           >
             <h1 className="text-[#0E5FC0] sm:text-3xl lg:text-4xl">
               Nothing found '@{searchParams.get("username")}'
             </h1>
             <img
-              src="notfound2.jpg"
+              src="notfound.webp"
               alt="not found photo"
-              className="w-5/6 lg:w-6/12 "
+              className="w-5/6 lg:w-[45%] 2xl:w-1/2 "
             />
           </Container>
         </section>
@@ -133,7 +133,7 @@ export default function search() {
                 Write Their usernames to get Connected
               </h1>
               <img
-                src="search1.jpg"
+                src="search.webp"
                 alt="search Photo"
                 className="w-5/6 lg:w-1/2 my-5"
               />

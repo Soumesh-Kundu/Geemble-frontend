@@ -33,7 +33,7 @@ function Comment({
     <div className="flex gap-3 items-center mb-4">
       <div className="h-12 w-12 rounded-full overflow-hidden">
         <img
-          src={`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
+          src={/firebasestorage/.test(profilePicture)?profilePicture:`${import.meta.env.VITE_BASE_URL}/api/${profilePicture}`}
           alt="profilePicture"
           className="w-full rounded-full"
         />
@@ -256,9 +256,9 @@ export default function Post() {
             <div id="profilepicture">
               <div className="-z-10 w-12 h-12 rounded-full overflow-hidden">
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}/api/${userDp}`}
+                  src={/firebasestorage/.test(userDp)?userDp:`${import.meta.env.VITE_BASE_URL}/api/${userDp}`}
                   alt="profilePicture"
-                  className="w-full rounded-full overflow-hidden"
+                  className="w-full h-full object-cover rounded-full overflow-hidden"
                 />
               </div>
             </div>
@@ -297,7 +297,7 @@ export default function Post() {
             <div className="h-full bg-gray-300  object-cover flex justify-center rounded-xl">
               <img
                 className="h-full lg:max-h-[65vh] rounded-xl"
-                src={`${import.meta.env.VITE_BASE_URL}/api/${postedImage}`}
+                src={/firebasestorage/.test(postedImage)?postedImage:`${import.meta.env.VITE_BASE_URL}/api/${postedImage}`}
                 alt=""
               />
             </div>

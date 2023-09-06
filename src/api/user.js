@@ -8,12 +8,20 @@ const Axios = axios.create({
 })
 
 export async function getDetails() {
-    const response = await Axios.get('getDetails')
+    const response = await Axios.get('getDetails',{
+        headers: {
+            'auth-token': localStorage.getItem('authToken')
+        },
+    })
     return response
 }
 export async function updateUser(body) {
     const response = await Axios.patch('update', {
         ...body
+    },{
+        headers: {
+            'auth-token': localStorage.getItem('authToken')
+        },
     })
     return response
 }
@@ -32,7 +40,7 @@ export async function verify(body) {
 }
 
 export async function resend() {
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/user/resend`, {
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/user/resend`,{}, {
         headers: {
             'auth-token': localStorage.getItem('authToken'),
             'session-token': sessionStorage.getItem('sessionToken')
@@ -47,13 +55,18 @@ export async function searchUsers(query) {
 
 export async function getUser(params) {
 
-    const response = await Axios.get(`getUser/${params}`)
+    const response = await Axios.get(`getUser/${params}`,{
+        headers: {
+            'auth-token': localStorage.getItem('authToken')
+        },
+    })
     return response
 }
 export async function changeDP(body) {
     const response = await Axios.post('changeDP', body, {
         headers: {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data',
+            'auth-token': localStorage.getItem('authToken')
         }
     })
     return response
